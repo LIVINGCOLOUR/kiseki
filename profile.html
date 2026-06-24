@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>プロフィール編集 | やさいの背景</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-require-auth>
+  <header class="site-header">
+    <div class="app-shell header-inner">
+      <a class="brand" href="dashboard.html"><span class="brand-mark">畑</span><span>やさいの背景<small>農園プロフィール編集</small></span></a>
+      <nav class="main-nav" aria-label="メインナビゲーション">
+        <a href="dashboard.html">ダッシュボード</a>
+        <a href="harvest-admin.html">動画登録</a>
+        <a href="analytics.html">アクセス解析</a>
+        <button type="button" data-logout>ログアウト</button>
+      </nav>
+    </div>
+  </header>
+  <main class="app-shell">
+    <section class="section form-card">
+      <p class="eyebrow">農園プロフィール</p>
+      <h1>公開ページを整える</h1>
+      <form class="form-grid" data-profile-form>
+        <div class="field">
+          <label for="farmName">農園名</label>
+          <input id="farmName" name="name" required />
+        </div>
+        <div class="field">
+          <label for="farmArea">地域</label>
+          <input id="farmArea" name="area" placeholder="例：茨城県水戸市" />
+        </div>
+        <div class="field">
+          <label for="farmDescription">紹介文</label>
+          <textarea id="farmDescription" name="description" placeholder="畑のこと、野菜のこと、届けたい背景を書いてください。"></textarea>
+        </div>
+        <div class="field">
+          <label for="farmImageUrl">代表写真URL</label>
+          <input id="farmImageUrl" name="imageUrl" placeholder="/api/media/profiles/farm-01/cover.jpg" />
+        </div>
+        <div class="field">
+          <label for="farmImageFile">代表写真をアップロード</label>
+          <input id="farmImageFile" type="file" accept="image/*" data-profile-image />
+        </div>
+        <div class="field">
+          <label for="farmLinks">関連リンク（1行に1URL）</label>
+          <textarea id="farmLinks" name="links" placeholder="https://example.com"></textarea>
+        </div>
+        <label><input type="checkbox" name="isPublic" checked /> 公開する</label>
+        <div class="actions">
+          <button class="button primary-button" type="submit">保存する</button>
+          <a class="button" href="farmer.html" data-profile-public-link>公開ページを見る</a>
+        </div>
+        <p class="status" data-profile-status role="status"></p>
+      </form>
+    </section>
+  </main>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

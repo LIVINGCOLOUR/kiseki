@@ -1,0 +1,456 @@
+:root {
+  --ink: #20392a;
+  --leaf: #315f38;
+  --leaf-soft: #e7f0dc;
+  --earth: #8a5d32;
+  --muted: #62715d;
+  --paper: #fffdf7;
+  --cream: #f6efe1;
+  --line: rgba(32, 57, 42, .12);
+  --shadow: 0 16px 42px rgba(32, 57, 42, .08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(231, 240, 220, .9), transparent 30%),
+    linear-gradient(180deg, #fffaf0, #f3eadb 65%, #efe3d1);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.75;
+}
+
+a { color: inherit; }
+
+.app-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(16px);
+  background: rgba(255, 253, 247, .86);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.brand-mark {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--leaf);
+  color: white;
+}
+
+.brand small {
+  display: block;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 14px;
+  font-size: .86rem;
+  font-weight: 850;
+}
+
+.main-nav a,
+.main-nav button {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+}
+
+.section {
+  margin: 34px 0;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+  gap: 22px;
+  align-items: stretch;
+  padding: 34px 0 18px;
+}
+
+.hero-card,
+.card,
+.form-card,
+.consumer-card {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 253, 247, .9);
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  padding: clamp(26px, 4vw, 48px);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--earth);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  line-height: 1.25;
+}
+
+h1 { font-size: clamp(2.3rem, 6vw, 5rem); letter-spacing: -.06em; }
+h2 { font-size: clamp(1.45rem, 3vw, 2.2rem); }
+h3 { font-size: 1.2rem; }
+
+.lead {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 760;
+}
+
+.hero-side {
+  min-height: 320px;
+  display: grid;
+  align-content: end;
+  padding: 24px;
+  overflow: hidden;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 68% 22%, rgba(255,253,247,.82), transparent 16%),
+    linear-gradient(140deg, rgba(49,95,56,.1), rgba(32,57,42,.58)),
+    linear-gradient(180deg, #dce8cf 0 42%, #acc28e 42% 58%, #7e9a61 58% 100%);
+}
+
+.hero-side p {
+  width: fit-content;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,253,247,.9);
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card,
+.form-card,
+.consumer-card {
+  padding: 22px;
+}
+
+.card p,
+.form-card p,
+.consumer-card p {
+  color: var(--muted);
+  font-weight: 720;
+}
+
+.button,
+button.button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 1px solid rgba(32,57,42,.18);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.primary-button {
+  border-color: var(--leaf);
+  background: var(--leaf);
+  color: white;
+}
+
+.button[disabled] {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-grid,
+.harvest-admin-form {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+label {
+  color: var(--ink);
+  font-size: .86rem;
+  font-weight: 900;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid rgba(32,57,42,.16);
+  border-radius: 14px;
+  background: rgba(255,255,255,.72);
+  padding: 12px 13px;
+  color: var(--ink);
+  font: inherit;
+}
+
+textarea { min-height: 120px; resize: vertical; }
+
+.note,
+.status,
+.field-note,
+.harvest-field-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: .84rem;
+  font-weight: 730;
+}
+
+.status.is-error { color: #9b4c22; }
+.status.is-success { color: var(--leaf); }
+
+.dashboard-list,
+.records-list,
+.analytics-table-wrap {
+  margin-top: 16px;
+}
+
+.records-list {
+  display: grid;
+  gap: 10px;
+}
+
+.record-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,253,247,.74);
+}
+
+.video-box {
+  overflow: hidden;
+  border-radius: 20px;
+  background: #17241b;
+}
+
+.video-box video,
+.preview-video,
+.harvest-admin-preview-video {
+  width: 100%;
+  max-height: 70vh;
+  display: block;
+  background: #17241b;
+}
+
+.photo-grid,
+.harvest-photo-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.photo-grid img,
+.harvest-photo-preview-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.harvest-composer-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.composer-clip {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,253,247,.74);
+}
+
+.composer-clip video {
+  width: 86px;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #17241b;
+}
+
+.composer-clip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.composer-clip-actions button,
+.small-button {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.harvest-composer-progress progress {
+  width: 100%;
+}
+
+.harvest-composer-result-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.harvest-composer-result-meta div {
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--leaf-soft);
+}
+
+.harvest-composer-result-meta dt {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.harvest-composer-result-meta dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.harvest-composer-dev pre {
+  overflow-x: auto;
+  padding: 12px;
+  border-radius: 14px;
+  background: #1f2d23;
+  color: #edf6e8;
+}
+
+.qr-box {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  margin-top: 16px;
+}
+
+.qr-box canvas {
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+  padding: 12px;
+  border-radius: 18px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(255,253,247,.86);
+}
+
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: .86rem;
+}
+
+.site-footer {
+  margin: 48px 0 24px;
+  color: var(--muted);
+  font-size: .8rem;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .app-shell { width: min(100% - 24px, 640px); }
+  .header-inner { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+  .main-nav { justify-content: flex-start; gap: 10px; }
+  .hero,
+  .grid-2,
+  .grid-3 { grid-template-columns: 1fr; }
+  .hero-side { min-height: 180px; }
+  .record-row,
+  .composer-clip { grid-template-columns: 1fr; }
+  .composer-clip video { width: 100%; max-height: 220px; aspect-ratio: 16 / 9; }
+  .photo-grid,
+  .harvest-photo-preview-grid,
+  .harvest-composer-result-meta { grid-template-columns: 1fr; }
+  table { display: block; overflow-x: auto; }
+}

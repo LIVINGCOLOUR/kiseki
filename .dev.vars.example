@@ -1,0 +1,7 @@
+# Copy this file to .dev.vars locally and replace dummy values.
+# Never commit real keys or secrets.
+
+SESSION_SECRET="replace-with-long-random-session-secret"
+FARM_ADMIN_KEYS_JSON='{"farm-01":"dummy-key-01","farm-02":"dummy-key-02","farm-03":"dummy-key-03","farm-04":"dummy-key-04","farm-05":"dummy-key-05"}'
+APP_BASE_URL="http://localhost:8788"
+ENVIRONMENT="development"

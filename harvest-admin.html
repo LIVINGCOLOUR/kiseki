@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>収穫動画登録 | やさいの背景</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-require-auth>
+  <header class="site-header">
+    <div class="app-shell header-inner">
+      <a class="brand" href="dashboard.html"><span class="brand-mark">畑</span><span>やさいの背景<small>商品・出荷日ごとのQRを作る</small></span></a>
+      <nav class="main-nav" aria-label="メインナビゲーション">
+        <a href="dashboard.html">ダッシュボード</a>
+        <a href="profile.html">プロフィール</a>
+        <a href="analytics.html">アクセス解析</a>
+        <button type="button" data-logout>ログアウト</button>
+      </nav>
+    </div>
+  </header>
+  <main class="app-shell">
+    <section class="section form-card">
+      <p class="eyebrow">今日の畑動画</p>
+      <h1>収穫記録を登録する</h1>
+      <p class="lead">おすすめは3本です。5本まで選べますが、スマホによっては処理に時間がかかる場合があります。</p>
+    </section>
+
+    <section class="section form-card" data-harvest-composer>
+      <p class="eyebrow">ブラウザ内で動画をつなぐ</p>
+      <h2>短い動画から、30秒ほどの収穫動画を作る</h2>
+      <p class="note">6〜10秒程度の短い縦動画を、完成動画で見せたい順に選んでください。元動画の音を使います。</p>
+      <div class="field">
+        <label for="clipVideos">素材動画を2〜5本選ぶ</label>
+        <input id="clipVideos" type="file" accept="video/*" multiple data-composer-input />
+        <p class="harvest-field-note">元動画は保存しません。保存するのは完成MP4のみです。</p>
+      </div>
+      <div class="harvest-composer-summary" data-composer-summary>素材動画はまだ選択されていません。</div>
+      <div class="harvest-composer-warnings" data-composer-warnings hidden></div>
+      <div class="harvest-composer-list" data-composer-list></div>
+      <div class="actions">
+        <button class="button primary-button" type="button" data-composer-generate disabled>約30秒の動画を作る</button>
+        <button class="button" type="button" data-composer-reset>素材を選び直す</button>
+      </div>
+      <div class="harvest-composer-progress" data-composer-progress hidden>
+        <p data-composer-phase>動画処理の準備中</p>
+        <progress value="0" max="100" data-composer-progress-bar></progress>
+        <p class="harvest-field-note"><span data-composer-progress-percent>0%</span> / <span data-composer-elapsed>0秒</span><br />処理中は画面を閉じないでください。</p>
+        <button class="button" type="button" data-composer-cancel>処理をキャンセル</button>
+      </div>
+      <div class="harvest-composer-result" data-composer-result hidden>
+        <h3>完成動画プレビュー</h3>
+        <video class="harvest-admin-preview-video" controls playsinline data-composer-result-video></video>
+        <dl class="harvest-composer-result-meta" data-composer-result-meta></dl>
+        <div class="actions">
+          <button class="button primary-button" type="button" data-composer-use>この動画を収穫動画に設定する</button>
+          <button class="button" type="button" data-composer-remake>作り直す</button>
+          <a class="button" href="#" download="harvest-composed.mp4" data-composer-download>動画をダウンロード</a>
+        </div>
+      </div>
+      <div class="harvest-composer-fallback">
+        <h3>うまく作れない場合</h3>
+        <p class="note">編集済みMP4を直接登録できます。</p>
+        <div class="field">
+          <label for="editedVideo">編集済みMP4を直接選ぶ</label>
+          <input id="editedVideo" type="file" accept="video/mp4,video/*" data-composer-fallback-input />
+        </div>
+        <div class="harvest-video-preview" data-composer-fallback-preview>
+          <p class="note">編集済みMP4を選ぶと、ここにプレビューが表示されます。</p>
+        </div>
+        <button class="button" type="button" data-composer-use-fallback disabled>このMP4を収穫動画に設定する</button>
+      </div>
+      <details class="harvest-composer-dev">
+        <summary>PoC計測ログ</summary>
+        <pre data-composer-log>未実行</pre>
+      </details>
+    </section>
+
+    <form class="section form-card harvest-admin-form" data-harvest-form>
+      <p class="eyebrow">公開内容</p>
+      <div class="field">
+        <label for="harvestDate">出荷日・投稿日</label>
+        <input id="harvestDate" name="date" type="date" required />
+      </div>
+      <div class="field">
+        <label for="productName">品目名</label>
+        <input id="productName" name="productName" placeholder="例：小松菜" />
+      </div>
+      <div class="field">
+        <label for="harvestTitle">タイトル</label>
+        <input id="harvestTitle" name="title" placeholder="例：今朝の小松菜" />
+      </div>
+      <div class="field">
+        <label for="harvestNote">ひとこと</label>
+        <textarea id="harvestNote" name="note" maxlength="160" placeholder="今日の畑の様子を一言で。"></textarea>
+      </div>
+      <div class="field">
+        <label for="harvestVideo">完成動画</label>
+        <input id="harvestVideo" type="file" accept="video/*" data-harvest-video />
+        <div data-video-preview><p class="note">完成動画を設定するとここにプレビューが表示されます。</p></div>
+      </div>
+      <div class="field">
+        <label for="harvestPhotos">写真</label>
+        <input id="harvestPhotos" type="file" accept="image/*" multiple data-harvest-photos />
+        <div class="harvest-photo-preview-grid" data-photo-preview></div>
+      </div>
+      <div class="actions">
+        <button class="button primary-button" type="submit">保存してQRを発行する</button>
+      </div>
+      <p class="status" data-harvest-status role="status"></p>
+      <div class="qr-box" data-qr-box hidden>
+        <canvas data-qr-canvas></canvas>
+        <p class="note" data-qr-url></p>
+        <div class="actions">
+          <button class="button" type="button" data-copy-url>公開URLをコピー</button>
+          <button class="button" type="button" data-download-qr>QR PNGをダウンロード</button>
+          <a class="button" href="#" target="_blank" rel="noopener" data-open-public>公開ページを開く</a>
+        </div>
+      </div>
+    </form>
+  </main>
+  <script src="js/qrcode.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/video-composer.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

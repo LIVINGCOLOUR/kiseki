@@ -1,0 +1,16 @@
+﻿# OS
+.DS_Store
+Thumbs.db
+
+# Local env and Cloudflare state
+.dev.vars
+.wrangler/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Local server
+*.pid
