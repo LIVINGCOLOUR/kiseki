@@ -302,6 +302,16 @@
       const profile = data.farmer;
       const displayTitle = record.title || "今日の軌跡";
       const photos = Array.isArray(record.photoUrls) ? record.photoUrls : [];
+      if (!hasRecordContent(record)) {
+        document.title = "まだコンテンツは登録されていません | 軌跡";
+        container.innerHTML = `
+          <p class="eyebrow">QRから見る</p>
+          <h1>まだコンテンツは登録されていません</h1>
+          <p class="lead">このページに表示する動画や写真は、まだ登録されていません。</p>
+          <div class="actions"><a class="button primary-button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}">プロフィールを見る</a></div>
+        `;
+        return;
+      }
       document.title = `${displayTitle} | 軌跡`;
       container.innerHTML = `
         <p class="eyebrow">QRから見る</p>
@@ -321,7 +331,11 @@
       $("[data-public-video]")?.addEventListener("ended", () => window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId }));
       $("[data-profile-click]")?.addEventListener("click", () => window.YNHAnalytics?.track("profile_click", { recordId: record.id, farmerId: record.farmerId }));
     } catch (error) {
-      container.innerHTML = `<p class="eyebrow">今日の軌跡</p><h1>記録が見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
+      container.innerHTML = `
+        <p class="eyebrow">QRから見る</p>
+        <h1>まだコンテンツは登録されていません</h1>
+        <p class="lead">このページに表示する動画や写真は、まだ登録されていません。</p>
+      `;
     }
   }
 
@@ -332,7 +346,7 @@
     try {
       const [profileData, recordData] = await Promise.all([fetchJson(`/api/farmer/${encodeURIComponent(id)}`), fetchJson(`/api/farmer/${encodeURIComponent(id)}/harvests`)]);
       const profile = profileData.farmer;
-      const records = recordData.records || [];
+      const records = (recordData.records || []).filter(hasRecordContent);
       document.title = `${profile.name} | 軌跡`;
       container.innerHTML = `
         <div class="public-profile-shell">
@@ -382,7 +396,7 @@
   }
 
   function renderProfileLatestVideo(records) {
-    const latest = records.find((record) => record.videoUrl) || records[0];
+    const latest = records.find(hasRecordContent);
     if (!latest) {
       return `
         <section class="public-profile-card">
@@ -470,13 +484,13 @@
     try {
       const [profileData, recordData] = await Promise.all([fetchJson(`/api/farmer/${encodeURIComponent(id)}`), fetchJson(`/api/farmer/${encodeURIComponent(id)}/harvests`)]);
       const profile = profileData.farmer;
-      const records = recordData.records || [];
+      const records = (recordData.records || []).filter(hasRecordContent);
       document.title = `最近の${profile.name}の様子 | 軌跡`;
       container.innerHTML = `
         <p class="eyebrow">最近の様子</p>
         <h1>最近の${escapeHtml(profile.name)}の様子</h1>
         <p class="lead">日ごとの記録を新しい順に表示しています。</p>
-        <div class="records-list">${records.map((record) => recordLink(record)).join("") || '<p class="note">記録はまだありません。</p>'}</div>
+        <div class="records-list">${records.map((record) => recordLink(record)).join("") || '<p class="note">まだコンテンツは登録されていません。</p>'}</div>
         <div class="actions"><a class="button" href="farmer.html?id=${encodeURIComponent(profile.id)}">プロフィールへ戻る</a></div>
       `;
     } catch (error) {
@@ -486,6 +500,11 @@
 
   function recordLink(record) {
     return `<a class="record-row" href="harvest.html?id=${encodeURIComponent(record.id)}"><span><strong>${escapeHtml(record.title || "今日の軌跡")}</strong><br><span class="note">${escapeHtml(formatDateJa(record.date))}</span></span><span>見る →</span></a>`;
+  }
+
+  function hasRecordContent(record) {
+    const photos = Array.isArray(record?.photoUrls) ? record.photoUrls : [];
+    return Boolean(record?.videoUrl || photos.length);
   }
 
   function renderLinks(links) {
