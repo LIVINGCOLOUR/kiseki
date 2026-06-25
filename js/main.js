@@ -110,9 +110,9 @@
       area: $('[name="area"]', form),
       description: $('[name="description"]', form),
       imageUrl: $('[name="imageUrl"]', form),
-      links: $('[name="links"]', form),
       isPublic: $('[name="isPublic"]', form),
     };
+    const linkRows = Array.from(form.querySelectorAll("[data-profile-link-row]"));
     if (publicLink) publicLink.href = `farmer.html?id=${encodeURIComponent(auth.farmId)}`;
 
     try {
@@ -166,6 +166,48 @@
         status.className = "status is-error";
       }
     });
+  }
+
+  function populateProfileLinkRows(rows, links) {
+    rows.forEach((row) => {
+      const labelInput = row.querySelector('[name="linkLabel"]');
+      const urlInput = row.querySelector('[name="linkUrl"]');
+      if (labelInput) labelInput.value = "";
+      if (urlInput) urlInput.value = "";
+    });
+    links.map(normalizeProfileLink).filter((item) => item.url).slice(0, 10).forEach((item, index) => {
+      const row = rows[index];
+      if (!row) return;
+      const labelInput = row.querySelector('[name="linkLabel"]');
+      const urlInput = row.querySelector('[name="linkUrl"]');
+      if (labelInput) labelInput.value = item.label || displayLinkLabel(item.url);
+      if (urlInput) urlInput.value = item.url;
+    });
+  }
+
+  function collectProfileLinks(rows) {
+    return rows.map((row) => {
+      const label = row.querySelector('[name="linkLabel"]')?.value.trim() || "";
+      const url = row.querySelector('[name="linkUrl"]')?.value.trim() || "";
+      if (!url) return null;
+      return { label: label || displayLinkLabel(url), url };
+    }).filter(Boolean).slice(0, 10);
+  }
+
+  function normalizeProfileLink(item) {
+    if (typeof item === "string") return { label: displayLinkLabel(item), url: item.trim() };
+    const url = String(item?.url || "").trim();
+    const label = String(item?.label || item?.name || "").trim() || displayLinkLabel(url);
+    return { label, url };
+  }
+
+  function displayLinkLabel(url) {
+    try {
+      const parsed = new URL(url);
+      return parsed.hostname.replace(/^www\./, "") || url;
+    } catch (error) {
+      return url || "関連リンク";
+    }
   }
 
   function setupHarvestAdmin() {
@@ -356,7 +398,7 @@
               <p class="eyebrow">プロフィール</p>
               <h1>${escapeHtml(profile.name)}</h1>
               <p class="public-profile-area">${escapeHtml(profile.area || "地域未設定")}</p>
-              <p>${escapeHtml(createProfileLead(profile))}</p>
+              <p class="public-profile-description">${escapeHtml(profile.description || "紹介文は準備中です。")}</p>
             </div>
           </article>
 
@@ -369,11 +411,6 @@
             <div class="actions"><a class="button primary-button" href="records.html?id=${encodeURIComponent(profile.id)}">これまでの記録を見る</a></div>
           </section>
 
-          <section class="public-profile-card public-profile-story-card">
-            <p class="eyebrow">想い</p>
-            <h2>${escapeHtml(createProfileStoryTitle(profile))}</h2>
-            <p>${escapeHtml(profile.description || "紹介文は準備中です。")}</p>
-          </section>
 
           ${renderProfileInfoCard(profile)}
           ${renderProfileLinkCard(profile.links)}
@@ -462,17 +499,14 @@
   }
 
   function renderProfileLinkCard(links) {
-    if (!Array.isArray(links) || !links.length) return "";
+    const normalized = Array.isArray(links) ? links.map(normalizeProfileLink).filter((item) => item.url).slice(0, 10) : [];
+    if (!normalized.length) return "";
     return `
       <section class="public-profile-card public-profile-links-card">
         <p class="eyebrow">関連リンク</p>
         <h2>最新情報は公式情報へ</h2>
         <div class="public-profile-link-list">
-          ${links.map((item, index) => {
-            const url = typeof item === "string" ? item : item.url;
-            const label = typeof item === "string" ? `関連リンク ${index + 1}` : (item.label || `関連リンク ${index + 1}`);
-            return `<a class="public-profile-link-chip" href="${escapeHtml(url)}" target="_blank" rel="noopener"><span>${escapeHtml(label)}</span><span aria-hidden="true">↗</span></a>`;
-          }).join("")}
+          ${normalized.map((item) => `<a class="public-profile-link-chip" href="${escapeHtml(item.url)}" target="_blank" rel="noopener"><span>${escapeHtml(item.label || displayLinkLabel(item.url))}</span><span aria-hidden="true">↗</span></a>`).join("")}
         </div>
       </section>`;
   }

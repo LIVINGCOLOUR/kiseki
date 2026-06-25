@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
     return errorJson("プロフィールを読み取れませんでした。", 400);
   }
 
-  const links = Array.isArray(body.links) ? body.links.slice(0, 6) : [];
+  const links = Array.isArray(body.links) ? body.links.map(normalizeLink).filter((item) => item.url).slice(0, 10) : [];
   const now = new Date().toISOString();
   const values = [
     auth.farmId,
@@ -42,3 +42,13 @@ export async function onRequestPost(context) {
   return json({ ok: true, farmId: auth.farmId });
 }
 
+
+function normalizeLink(item) {
+  if (typeof item === "string") {
+    const url = item.trim();
+    return { label: url, url };
+  }
+  const url = String(item?.url || "").trim();
+  const label = String(item?.label || item?.name || "").trim() || url;
+  return { label, url };
+}

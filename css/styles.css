@@ -751,3 +751,40 @@ td {
   .harvest-composer-item { grid-template-columns: 1fr; }
   .harvest-composer-item video { width: 100%; max-height: 220px; aspect-ratio: 16 / 9; }
 }
+
+.profile-link-editor {
+  display: grid;
+  gap: 9px;
+}
+
+.profile-link-row {
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, .9fr) minmax(0, 1.3fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-link-row span {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #f1eadb;
+  color: var(--earth);
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.public-profile-description {
+  white-space: pre-line;
+}
+
+@media (max-width: 560px) {
+  .profile-link-row {
+    grid-template-columns: 2rem 1fr;
+  }
+  .profile-link-row input[name="linkUrl"] {
+    grid-column: 2;
+  }
+}

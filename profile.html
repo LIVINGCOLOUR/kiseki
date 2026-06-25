@@ -41,9 +41,61 @@
           <input id="profileImageFile" type="file" accept="image/*" data-profile-image />
           <p class="field-note">アップロードした写真はR2に保存され、公開プロフィールの代表写真として使われます。</p>
         </div>
-        <div class="field">
-          <label for="profileLinks">関連リンク（1行に1URL）</label>
-          <textarea id="profileLinks" name="links" placeholder="https://example.com"></textarea>
+        <div class="field profile-links-field">
+          <label>関連リンク（サイト名とURL）</label>
+          <p class="field-note">表示したいサイト名とURLを分けて入力してください。入力した分だけ公開ページに表示されます。最大10件まで登録できます。</p>
+          <div class="profile-link-editor" data-profile-links-editor>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>1</span>
+              <input name="linkLabel" placeholder="例：公式サイト" aria-label="関連リンク1のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク1のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>2</span>
+              <input name="linkLabel" placeholder="例：Instagram" aria-label="関連リンク2のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク2のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>3</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク3のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク3のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>4</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク4のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク4のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>5</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク5のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク5のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>6</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク6のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク6のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>7</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク7のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク7のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>8</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク8のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク8のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>9</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク9のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク9のURL" />
+            </div>
+            <div class="profile-link-row" data-profile-link-row>
+              <span>10</span>
+              <input name="linkLabel" placeholder="サイト名" aria-label="関連リンク10のサイト名" />
+              <input name="linkUrl" type="url" placeholder="https://example.com" aria-label="関連リンク10のURL" />
+            </div>
+          </div>
         </div>
         <label><input type="checkbox" name="isPublic" checked /> 公開する</label>
         <div class="actions">
