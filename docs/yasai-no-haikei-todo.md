@@ -1,90 +1,33 @@
-# やさいの背景 TODO
+# 軌跡 todo
 
-最終更新: 2026-06-25
+## 優先度 高
 
-## 優先度A: 実機確認前に済ませること
+- ローカル `wrangler pages dev` で `id-01` ログイン確認
+- 1本動画のMP4変換確認
+- 3本動画生成確認
+- 実MP4アップロード確認
+- 写真ギャラリーのR2保存確認
+- QRを別端末で読んだ確認
+- `harvest.html` で動画、写真ギャラリー、プロフィールボタンの順に見えることを確認
+- `records.html?id=id-01` の日別一覧を確認
 
-- [x] 新規repo側でローカル静的配信を確認する
-- [x] D1 migrationをlocal適用する
-- [x] `wrangler pages dev` で主要APIを確認する
-- [x] QR先 `harvest.html?id=farm-01-demo-2026-06-21` が表示できることを確認する
-- [ ] README内のローカルパス表記が独立repo向けになっているか確認する
-- [ ] 実機テスト用の `.dev.vars` をローカルだけに作る
-- [ ] 実機テスト用の農園ID・管理キーを決める
+## 優先度 中
 
-## 優先度A: 実機スマホで確認すること
+- analytics画面でPV、動画再生、動画完了、プロフィール遷移を確認
+- `profile_click` が記録されることを確認
+- 390px幅で登録画面、QR先、プロフィール、日別一覧を確認
+- `harvest.html` で `ffmpeg.wasm` / `js/video-composer.js` が読み込まれないことを確認
 
-- [ ] iPhoneで `harvest-admin.html` を開く
-- [ ] Androidで `harvest-admin.html` を開く
-- [ ] 農園ID + 管理キーでログインできる
-- [ ] 6〜10秒程度の縦動画3本を選択できる
-- [ ] ブラウザ内で約30秒の完成MP4を生成できる
-- [ ] 完成MP4に映像が入っている
-- [ ] 完成MP4に元動画の音声が入っている
-- [ ] 完成MP4をプレビューできる
-- [ ] 完成MP4をダウンロードできる
-- [ ] 5本選択時の処理時間・メモリ負荷が許容範囲か確認する
-- [ ] 390px幅で横崩れがない
-- [ ] Consoleに未処理例外がない
+## 本番反映前
 
-## 優先度A: Cloudflare local / 本番前確認
+- Cloudflare Pages Secret `FARM_ADMIN_KEYS_JSON` を `id-01`〜`id-05` に更新するか判断
+- remote D1の既存 `farm-01` 系データを `id-01` 系へ移行するか判断
+- production D1 migrationまたは手動SQLの方針を決める
+- ffmpeg同梱ファイルのライセンス表記確認
 
-- [ ] 実ファイルのR2アップロードを確認する
-- [ ] 完成MP4だけがR2に保存され、元動画クリップが保存されていないことを確認する
-- [ ] 写真アップロードを確認する
-- [ ] 収穫記録がD1に保存されることを確認する
-- [ ] QR画像が生成されることを確認する
-- [ ] QRを別端末で読み、ログインなしでQR先ページが開くことを確認する
-- [ ] QR先ページで動画が再生されることを確認する
-- [ ] QR先ページで `ffmpeg.wasm` が読み込まれていないことを確認する
-- [ ] `page_view` / `video_play` / `video_ended` / `profile_click` が記録されることを確認する
-- [ ] `analytics.html` で集計が見えることを確認する
+## 後回し
 
-## 優先度B: 本番Cloudflare反映
-
-- [ ] Cloudflare Pages projectを作る
-- [ ] D1 `yasai-no-haikei-db` を作る
-- [ ] R2 `yasai-no-haikei-media` を作る
-- [ ] `wrangler.toml` の `database_id` を本番D1 IDへ差し替える
-- [ ] Pages Functions の `DB` bindingを設定する
-- [ ] Pages Functions の `MEDIA_BUCKET` bindingを設定する
-- [ ] `SESSION_SECRET` をCloudflare Secretに設定する
-- [ ] `FARM_ADMIN_KEYS_JSON` をCloudflare Secretに設定する
-- [ ] `APP_BASE_URL` を本番URLに設定する
-- [ ] `ENVIRONMENT=production` を設定する
-- [ ] `npx wrangler d1 migrations apply yasai-no-haikei-db --remote` を実行する
-- [ ] 本番URLでログイン、アップロード、QR閲覧、analyticsを確認する
-
-## 優先度B: 公開・運用前確認
-
-- [ ] `ffmpeg.wasm` および同梱ライブラリのライセンス表記・NOTICE要否を確認する
-- [ ] Secretsや `.dev.vars` がGit管理対象に入っていないことを確認する
-- [ ] `.wrangler/` がGit管理対象に入っていないことを確認する
-- [ ] 実証で使う農園名、商品名、動画、写真の掲載許諾を確認する
-- [ ] 実証店舗でQRを掲示する位置を決める
-- [ ] 販売率比較の計測方法を決める
-
-## 優先度C: 後回しでよいこと
-
-- [ ] 5本動画生成の高速化
-- [ ] UIの細かなスマホ最適化
-- [ ] 管理キー再発行UI
-- [ ] 管理画面の複数ロール対応
-- [ ] 詳細なアクセス解析画面
-- [ ] 動画テンプレートの複数化
-- [ ] サムネイル自動生成
-
-## 既存repo側の整理
-
-- [ ] `shizenha-yasai-map` 側の `poc-video-composer-audio-test` をいつ削除するか判断する
-- [ ] 削除する場合は、独立repoで本番反映の見通しが立った後にユーザー確認を取る
-- [ ] 既存repo側の未コミット差分 `CLAUDE.md` とルート `README.md` の扱いを別途確認する
-
-## 本番初回deploy後の残タスク（2026-06-25）
-
-- [ ] 実機スマホで farm-01 にログインし、動画3本から完成MP4を生成できることを確認する。
-- [ ] 実機スマホで完成MP4に映像と音声が入ることを確認する。
-- [ ] 実MP4と写真を本番R2へアップロードし、元動画が保存されないことを確認する。
-- [ ] `harvest.html?id=...` を別端末のQR読み取りで開き、ログインなしで動画再生できることを確認する。
-- [ ] `analytics.html` で page_view / video_play / video_ended / profile_click の集計が期待通り見えることを確認する。
-- [ ] `vendor/ffmpeg/` のライセンス表記・NOTICE要否を確認する。
+- 保持期間、課金、容量制限の設計
+- 事業者別テンプレート
+- 複数プロフィール管理
+- analyticsの詳細イベント追加

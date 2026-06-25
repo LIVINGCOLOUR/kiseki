@@ -2,13 +2,10 @@ import { defaultFarmName, ensureFarmerRow, errorJson, isAllowedFarmId, json } fr
 
 export async function onRequestGet(context) {
   const farmId = String(context.params.id || "");
-  if (!isAllowedFarmId(farmId)) return errorJson("農園が見つかりません。", 404);
+  if (!isAllowedFarmId(farmId)) return errorJson("プロフィールが見つかりません。", 404);
   await ensureFarmerRow(context.env, farmId);
 
-  const row = context.env.DB
-    ? await context.env.DB.prepare("SELECT * FROM farmers WHERE id = ?").bind(farmId).first()
-    : null;
-
+  const row = context.env.DB ? await context.env.DB.prepare("SELECT * FROM farmers WHERE id = ?").bind(farmId).first() : null;
   return json({ ok: true, farmer: normalizeFarmer(row, farmId) });
 }
 
@@ -26,10 +23,6 @@ function normalizeFarmer(row, farmId) {
 }
 
 function safeJson(value, fallback) {
-  try {
-    return value ? JSON.parse(value) : fallback;
-  } catch (error) {
-    return fallback;
-  }
+  try { return value ? JSON.parse(value) : fallback; }
+  catch (error) { return fallback; }
 }
-

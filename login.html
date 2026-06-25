@@ -3,37 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>農園ログイン | やさいの背景</title>
+  <title>作り手ログイン | 軌跡</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="app-shell header-inner">
-      <a class="brand" href="index.html"><span class="brand-mark">畑</span><span>やさいの背景<small>農園だけがログインします</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark">軌</span><span>軌跡<small>作り手だけがログインします</small></span></a>
     </div>
   </header>
   <main class="app-shell">
     <section class="section grid-2">
       <div class="form-card">
-        <p class="eyebrow">農園ログイン</p>
+        <p class="eyebrow">作り手ログイン</p>
         <h1>管理キーで入る</h1>
-        <p class="lead">最初の運用実証では、農園アカウント5個だけを用意します。消費者アカウントはありません。</p>
+        <p class="lead">Phase 1では、消費者アカウントを作りません。作り手だけがログインし、今日の軌跡とプロフィールを管理します。</p>
       </div>
       <form class="form-card form-grid" data-login-form>
         <div class="field">
-          <label for="farmId">農園ID</label>
+          <label for="farmId">作り手ID</label>
           <select id="farmId" name="farmId" required>
-            <option value="farm-01">farm-01</option>
-            <option value="farm-02">farm-02</option>
-            <option value="farm-03">farm-03</option>
-            <option value="farm-04">farm-04</option>
-            <option value="farm-05">farm-05</option>
+            <option value="id-01">id-01</option>
+            <option value="id-02">id-02</option>
+            <option value="id-03">id-03</option>
+            <option value="id-04">id-04</option>
+            <option value="id-05">id-05</option>
           </select>
         </div>
         <div class="field">
           <label for="adminKey">管理キー</label>
           <input id="adminKey" name="adminKey" type="password" autocomplete="current-password" required />
-          <p class="field-note">実キーはCloudflare環境変数で管理します。</p>
+          <p class="field-note">本番キーはCloudflare Pages Secretsで管理します。リポジトリには保存しません。</p>
         </div>
         <button class="button primary-button" type="submit">ログイン</button>
         <p class="status" data-login-status role="status"></p>
@@ -44,4 +44,3 @@
   <script src="js/main.js"></script>
 </body>
 </html>
-

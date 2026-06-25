@@ -3,57 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>やさいの背景</title>
-  <meta name="description" content="売場の野菜に添えたQRから、野菜が育った今日の畑を30秒で見るためのプロトタイプです。" />
+  <title>軌跡</title>
+  <meta name="description" content="売場や作品に添えたQRから、作り手の今日の背景を短い動画と写真で見るためのプロトタイプです。" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="app-shell header-inner">
-      <a class="brand" href="index.html"><span class="brand-mark">畑</span><span>やさいの背景<small>野菜が育った背景を、売場で30秒見る</small></span></a>
+      <a class="brand" href="index.html"><span class="brand-mark">軌</span><span>軌跡<small>作り手の今日を、QRから見る</small></span></a>
       <nav class="main-nav" aria-label="メインナビゲーション">
-        <a href="login.html">農園ログイン</a>
-        <a href="harvest.html?id=farm-01-demo-2026-06-21">QR先サンプル</a>
+        <a href="login.html">作り手ログイン</a>
+        <a href="harvest.html?id=id-01-demo-2026-06-21">QR先サンプル</a>
+        <a href="farmer.html?id=id-01">プロフィール</a>
       </nav>
     </div>
   </header>
-
   <main class="app-shell">
     <section class="hero">
       <div class="hero-card">
-        <p class="eyebrow">売場のQRから、今日の畑へ</p>
-        <h1>やさいの背景</h1>
-        <p class="lead">野菜が育った背景を、売場で30秒見るためのアプリ。農園がスマホで短い動画と写真を登録し、商品・出荷日ごとのQRを発行します。</p>
+        <p class="eyebrow">QRから、今日の背景へ</p>
+        <h1>軌跡</h1>
+        <p class="lead">野菜、魚、陶芸、工芸品、農産物など。売場や作品に添えたQRから、作り手がその日に残した動画と写真を見られる運用実証用プロトタイプです。</p>
         <div class="actions">
-          <a class="button primary-button" href="login.html">農園向けログイン</a>
-          <a class="button" href="harvest.html?id=farm-01-demo-2026-06-21">QR先の見え方を見る</a>
+          <a class="button primary-button" href="login.html">作り手としてログイン</a>
+          <a class="button" href="harvest.html?id=id-01-demo-2026-06-21">QR先の見え方を見る</a>
         </div>
       </div>
-      <div class="hero-side">
-        <p>消費者アカウントなし。QRを読むだけ。</p>
-      </div>
+      <div class="hero-side"><p>ログインなしで、動画・写真・プロフィールへ。</p></div>
     </section>
-
     <section class="section grid-3">
-      <article class="card">
-        <p class="eyebrow">1. 撮る</p>
-        <h2>畑で短い動画を撮る</h2>
-        <p>里山・野菜のアップ・収穫する手元など、6〜10秒程度の動画を3本ほど撮ります。</p>
-      </article>
-      <article class="card">
-        <p class="eyebrow">2. つなぐ</p>
-        <h2>30秒ほどに自動編集</h2>
-        <p>ブラウザ内で映像と元音声をつなぎ、完成MP4だけを保存します。元動画は保存しません。</p>
-      </article>
-      <article class="card">
-        <p class="eyebrow">3. 見る</p>
-        <h2>売場QRから再生</h2>
-        <p>商品・出荷日ごとのQRから、消費者がログインなしで動画と写真を見られます。</p>
-      </article>
+      <article class="card"><p class="eyebrow">1. 残す</p><h2>今日の現場を短く記録</h2><p>作り手がスマホで撮った短い動画や写真を、商品・作品・投稿日ごとの記録として残します。</p></article>
+      <article class="card"><p class="eyebrow">2. 整える</p><h2>動画を軽く見やすくする</h2><p>ブラウザ内で動画を整え、QR先で再生しやすいMP4として登録します。元動画は保存しません。</p></article>
+      <article class="card"><p class="eyebrow">3. 伝える</p><h2>QRから背景を見る</h2><p>消費者や来場者は、ログインなしで動画、写真ギャラリー、作り手プロフィールへ進めます。</p></article>
     </section>
   </main>
-
-  <footer class="site-footer">© やさいの背景 prototype</footer>
+  <footer class="site-footer">© 軌跡 prototype</footer>
 </body>
 </html>
-

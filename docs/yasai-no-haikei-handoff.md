@@ -1,159 +1,60 @@
-# やさいの背景 開発引き継ぎ
+# 軌跡 handoff
 
-このファイルは、次回以降のChatGPT/Codexスレッドに貼れば開発を再開できるようにするための引き継ぎメモです。
+## 概要
 
-最終更新: 2026-06-25
+このリポジトリは、表示名 `軌跡` の運用実証プロトタイプです。技術名は `yasai-no-haikei` のままです。
 
-## プロジェクト概要
-
-「やさいの背景」は、売場の野菜に添えたQRから、消費者がその野菜が育った今日の畑を約30秒で見られる運用実証用プロトタイプです。
-
-目的は、野菜の背景を動画で体感できることで、知覚価値、QR閲覧、動画再生、販売率に変化があるかを検証することです。
+QRから、作り手がその日に残した動画・写真・プロフィールを見せます。対象は野菜・魚・陶芸・工芸品・農産物などに広げる前提です。
 
 ## 正本リポジトリ
 
 - GitHub: `https://github.com/LIVINGCOLOUR/yasai-no-haikei`
 - ローカル: `C:\Users\HOME\yasai-no-haikei`
-- ブランチ: `main`
-- 直近commit: `8755cf5 Create Yasai no Haikei prototype app`
+- Cloudflare project: `yasai-no-haikei`
 
-今後の「やさいの背景」の開発は、この独立repoを正本として進めます。
+既存の `shizenha-yasai-map` は触らない。
 
-## 既存repoとの関係
+## 重要な現状
 
-既存の「自然派やさいマップ」repo:
+- 画面上は `軌跡` に変更。
+- ローカル・初期データは `id-01`〜`id-05` 方針。
+- 内部API/DB名の `farmer` は互換性維持のため残っている。
+- `.dev.vars` はローカル専用でGit追跡対象外。
+- 本番Cloudflare Secretsとremote D1のID移行はまだ行っていない。
 
-- `https://github.com/LIVINGCOLOUR/shizenha-yasai-map.git`
-- ローカル: `C:\Users\HOME\taneto-hatake-map`
+## 実装済み導線
 
-この既存repo内に一時的に `yasai-no-haikei/` フォルダを作っていましたが、現在は独立repo `LIVINGCOLOUR/yasai-no-haikei` に切り出し済みです。
-
-既存repo側の `poc-video-composer-audio-test` ブランチはバックアップ扱いです。ユーザー確認なしに削除しないでください。
-
-## 実装済み内容
-
-画面:
-
-- `index.html`: トップ
-- `login.html`: 農園ログイン
-- `dashboard.html`: 農園ダッシュボード
-- `profile.html`: 農園プロフィール編集
-- `harvest-admin.html`: 動画・写真・ひとこと登録、QR発行
-- `harvest.html?id={recordId}`: 消費者向けQR先
-- `farmer.html?id=farm-01`: 消費者向け農園プロフィール
-- `analytics.html`: 簡易アクセス解析
-
-Functions/API:
-
-- auth: login / logout / me
-- farmer: profile取得・保存、harvest一覧
-- harvest: record取得・保存、upload
-- media: R2 media配信
-- analytics: track / summary
-
-データ:
-
-- D1 migration: `migrations/0001_init.sql`
-- tables: `farmers`, `harvest_records`, `analytics_events`
-- R2 bucket想定: `yasai-no-haikei-media`
-
-動画:
-
-- `harvest-admin.html` で `js/video-composer.js` を読み込み
-- `vendor/ffmpeg/` のffmpeg.wasmを遅延利用
-- 推奨3本、最大5本
-- 約30秒、720×1280、30fps、H.264/AAC、faststart
-- 元動画音声を使う
-- 元動画クリップは保存しない
-- 完成MP4と写真のみ保存する
-
-## 重要な設計判断
-
-- 「自然派やさいマップ」とは別アプリとして扱う
-- `yasai-no-haikei` repoを正本にする
-- 消費者アカウントは作らない
-- 農園アカウントは農園ID + 管理キーの簡易ログイン
-- 管理キーは `FARM_ADMIN_KEYS_JSON` 環境変数で管理
-- Secrets、`.dev.vars`、`.wrangler/` はコミットしない
-- QR先ではログイン不要
-- QR先で計測用リダイレクトや待機画面を挟まない
-- QR先では `ffmpeg.wasm` を読み込まない
-- Phase 1ではBGM、自動字幕、AI見どころ判定、高度編集、SNS投稿は作らない
-
-## 確認済み
-
-新規repo `C:\Users\HOME\yasai-no-haikei` で以下を確認済みです。
-
-- `git status`: clean
-- JS `node --check`: OK
-- D1 migration local適用: OK
-- 静的配信で主要ページ200: OK
-- `wrangler pages dev` で主要API疎通: OK
-  - `GET /api/auth/me`
-  - `GET /api/farmer/farm-01`
-  - `GET /api/harvest/farm-01-demo-2026-06-21`
-  - `POST /api/analytics/track`
-
-## 未確認事項
-
-- 実機スマホでの動画3本生成
-- 実機スマホでの音声付き完成MP4確認
-- 実ファイルのR2アップロード
-- QRを別端末で読んだ確認
-- analytics画面で実イベントが期待通り見えること
-- 本番Cloudflare D1/R2へのremote反映
-- 本番用Secrets設定
-- `ffmpeg.wasm` および同梱ライブラリのライセンス表記・NOTICE要否
+- `login.html`: 作り手ログイン
+- `dashboard.html`: 管理画面
+- `harvest-admin.html`: 動画・写真登録
+- `harvest.html?id=...`: QR先
+- `farmer.html?id=id-01`: プロフィール
+- `records.html?id=id-01`: 最近の様子一覧
+- `profile.html`: プロフィール編集
+- `analytics.html`: アクセス解析
 
 ## 次にCodexへ投げるべき作業
 
-まずは実機確認に進む前に、必要ならローカル用 `.dev.vars` を作ります。ただし `.dev.vars` は絶対にコミットしません。
+1. `wrangler pages dev` で `id-01` ログイン確認。
+2. 1本動画変換と3本動画生成をPC/実機で確認。
+3. 写真ギャラリー保存とQR先拡大表示を確認。
+4. `records.html` から日別記録へ進めるか確認。
+5. 本番Secrets/D1を `id-01` 系へ移行するか判断して、必要なら別作業として安全に実施。
 
-次の依頼例:
+## 絶対に避けること
 
-```text
-作業対象: C:\Users\HOME\yasai-no-haikei
-
-やさいの背景の実機確認準備をしてください。
-実装追加はせず、ローカル用 .dev.vars を作成し、wrangler pages dev でログインから収穫記録保存まで確認できる状態にしてください。
-.dev.vars はコミットしないでください。
-実機スマホ確認用URLと、確認手順を報告してください。
-```
-
-その次にやること:
-
-- 実機スマホで3本動画生成
-- 完成MP4の音声確認
-- R2実ファイルアップロード確認
-- 別端末QR確認
-- analytics確認
-- 本番Cloudflare D1/R2反映
-
-## 絶対に触ってはいけないもの
-
-- 既存 `C:\Users\HOME\taneto-hatake-map` の自然派やさいマップ本体
-- 既存repo側の未コミット差分
-- 既存repo側のブランチ削除
-- `.dev.vars` のコミット
-- `.wrangler/` のコミット
-- Secrets、APIキー、Cloudflareトークンのコミット
-- 元動画クリップを保存する仕様変更
-- 消費者アカウント、SNSログイン、決済、地図検索などPhase 1外の機能追加
+- Secrets値をREADME/docs/gitに書かない。
+- `.dev.vars` をcommitしない。
+- `.wrangler/` をcommitしない。
+- 既存 `shizenha-yasai-map` を編集しない。
+- Cloudflare本番Secretやremote D1を確認なしで変更しない。
+- QR先ページでffmpegを読み込まない。
 
 ## commit / push 方針
 
-- 小さな作業単位でcommitする
-- pushはユーザー確認後に行う
-- docsだけの更新と実装変更をできるだけ混ぜない
-- 実機確認で問題が出た場合は、最小修正に絞る
-- 大きな仕様変更が必要な場合は実装せず、課題として報告する
+この変更はまだcommit/pushしない。ユーザー確認後に必要な範囲だけstageする。
+## 管理キー固定方針
 
-## 2026-06-25 本番初回deployメモ
+ユーザー指定の管理キーを正とし、Codex側で勝手に再生成・変更しない。値そのものはREADME/docs/gitに書かない。repo外の `C:\Users\HOME\yasai-no-haikei-secrets\production-admin-keys.txt` と Cloudflare Pages Secret `FARM_ADMIN_KEYS_JSON` を正として扱う。
 
-- 本番URL: `https://yasai-no-haikei.pages.dev/`
-- deploy元はrepo rootではなく、repo外の一時ディレクトリ `C:\Users\HOME\yasai-no-haikei-deploy`。
-- deploy対象にはHTML/CSS/JS/functions/vendorのみを含め、`.dev.vars`, `.wrangler/`, `.git/`, `node_modules/`, `docs/`, `README.md`, `.dev.vars.example`, `migrations/`, secrets保管フォルダは含めない。
-- 本番D1/R2/API smoke確認済み。R2 smokeでは小さなPNGをアップロードし、D1に `farm-01-smoke-2026-06-25` を保存して `/api/media/...` 取得まで確認した。
-- `functions/api/harvest/upload.js` は、Cloudflareのmultipart解析失敗やR2 binding不正を1101で落とさずJSONで返すよう最小防御を追加した。
-- このdeploy記録で反映した変更: `wrangler.toml`, `functions/api/harvest/upload.js`, README/docsのdeployメモ。
-- 次は、実機スマホで動画3本生成、実MP4アップロード、QR別端末確認、analytics画面確認を行う。
+旧 `farm-01`〜`farm-05` と新 `id-01`〜`id-05` は、移行期間中は同じ管理キーで入れるようにする。

@@ -2,15 +2,10 @@ import { errorJson, json } from "../../_utils.js";
 
 export async function onRequestGet(context) {
   const id = String(context.params.id || "");
-  const row = await context.env.DB.prepare("SELECT * FROM harvest_records WHERE id = ?")
-    .bind(id)
-    .first();
-  if (!row) return errorJson("収穫記録が見つかりません。", 404);
+  const row = await context.env.DB.prepare("SELECT * FROM harvest_records WHERE id = ?").bind(id).first();
+  if (!row) return errorJson("記録が見つかりません。", 404);
 
-  const farmer = await context.env.DB.prepare("SELECT * FROM farmers WHERE id = ?")
-    .bind(row.farmer_id)
-    .first();
-
+  const farmer = await context.env.DB.prepare("SELECT * FROM farmers WHERE id = ?").bind(row.farmer_id).first();
   return json({ ok: true, record: normalizeRecord(row), farmer: normalizeFarmer(farmer) });
 }
 
@@ -30,22 +25,17 @@ function normalizeRecord(row) {
 }
 
 function normalizeFarmer(row) {
-  return row
-    ? {
-        id: row.id,
-        name: row.name,
-        area: row.area || "",
-        description: row.description || "",
-        imageUrl: row.image_url || "",
-      }
-    : null;
+  return row ? {
+    id: row.id,
+    name: row.name,
+    area: row.area || "",
+    description: row.description || "",
+    imageUrl: row.image_url || "",
+    links: safeJson(row.links_json, []),
+  } : null;
 }
 
 function safeJson(value, fallback) {
-  try {
-    return value ? JSON.parse(value) : fallback;
-  } catch (error) {
-    return fallback;
-  }
+  try { return value ? JSON.parse(value) : fallback; }
+  catch (error) { return fallback; }
 }
-

@@ -1,8 +1,6 @@
 /*
- * qrcode.js — 自然派やさいマップ用の最小QRコード生成（バイトモード / 誤り訂正レベルM / バージョン1〜9）。
- * 野菜セットに添えるQR導線の発行に使う。外部CDNに依存しないローカル実装。
- * 公開: window.QRCodeLite.generate(text) と toCanvas(canvas, text, opts)。
- * アルゴリズムはISO/IEC 18004準拠。Python qrcode と一致することを確認済み。
+ * qrcode.js - 軌跡のQR発行に使う、外部CDNに依存しないローカル実装。
+ * Public API: window.QRCodeLite.generate(text) / toCanvas(canvas, text, opts)
  */
 (function (global) {
   "use strict";

@@ -2,7 +2,7 @@
   "use strict";
 
   const LIMITS = {
-    minClips: 2,
+    minClips: 1,
     maxClips: 5,
     recommendedMinSeconds: 6,
     recommendedMaxSeconds: 10,
@@ -393,10 +393,10 @@
       showProgress(ui, "動画を結合中", 72);
       await combineClips(ui, plan.map((item) => item.duration));
 
-      showProgress(ui, "完成動画を準備中", 94);
+      showProgress(ui, "動画を準備中", 94);
       const data = state.ffmpeg.FS("readFile", "output.mp4");
       const blob = new Blob([data.buffer], { type: "video/mp4" });
-      const file = new File([blob], `harvest-composed-${Date.now()}.mp4`, { type: "video/mp4" });
+      const file = new File([blob], `kiseki-composed-${Date.now()}.mp4`, { type: "video/mp4" });
       const url = URL.createObjectURL(blob);
       state.result = { blob, file, url, seconds: getComposedDuration(plan.map((item) => item.duration)) };
       state.metrics.outputMedia = await inspectGeneratedVideo(url);
@@ -407,7 +407,7 @@
       state.metrics.ffmpegTail = state.ffmpegMessages.slice(-12);
       renderResult(ui);
       showProgress(ui, "完成しました", 100);
-      console.info("Harvest video compose PoC", state.metrics);
+      console.info("Kiseki video compose PoC", state.metrics);
       updateLog(ui, state.metrics);
     } catch (error) {
       handleComposerError(ui, error);
@@ -802,7 +802,7 @@
   function useResultVideo(ui) {
     if (!state.result?.file) return;
     dispatchComposedVideo(state.result.file);
-    showComposerMessage(ui, "完成動画を下の収穫動画としてセットしました。");
+    showComposerMessage(ui, "動画を登録対象にセットしました。");
   }
 
   function selectFallbackVideo(ui) {
@@ -823,7 +823,7 @@
   function renderFallbackPreview(ui, fallback) {
     if (!ui.fallbackPreview) return;
     if (!fallback) {
-      ui.fallbackPreview.innerHTML = '<p class="harvest-empty-preview">編集済みMP4を選ぶと、ここにプレビューが表示されます。</p>';
+      ui.fallbackPreview.innerHTML = '<p class="harvest-empty-preview">この直接選択機能は現在のUIでは使いません。</p>';
       return;
     }
     ui.fallbackPreview.innerHTML = `
@@ -835,7 +835,7 @@
   function useFallbackVideo(ui) {
     if (!state.fallback?.file) return;
     dispatchComposedVideo(state.fallback.file);
-    showComposerMessage(ui, "編集済みMP4を下の収穫動画としてセットしました。");
+    showComposerMessage(ui, "動画を登録対象にセットしました。");
   }
 
   function dispatchComposedVideo(file) {
@@ -940,7 +940,7 @@
       unsupported: "対応していない動画",
       convert: "動画変換失敗",
     };
-    showComposerError(ui, titleMap[type] || "動画変換失敗", "動画の本数や長さを減らして再度お試しください。うまくいかない場合は、編集済みのMP4を直接登録できます。");
+    showComposerError(ui, titleMap[type] || "動画変換失敗", "動画の本数や長さを減らして再度お試しください。うまくいかない場合は、編集済みのMP4を登録できます。");
   }
 
   function classifyError(error) {

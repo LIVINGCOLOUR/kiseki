@@ -3,35 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>アクセス解析 | やさいの背景</title>
+  <title>アクセス解析 | 軌跡</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body data-require-auth>
   <header class="site-header">
     <div class="app-shell header-inner">
-      <a class="brand" href="dashboard.html"><span class="brand-mark">畑</span><span>やさいの背景<small>簡易アクセス解析</small></span></a>
+      <a class="brand" href="dashboard.html"><span class="brand-mark">軌</span><span>軌跡<small>QR閲覧の確認</small></span></a>
       <nav class="main-nav" aria-label="メインナビゲーション">
         <a href="dashboard.html">ダッシュボード</a>
         <a href="harvest-admin.html">動画登録</a>
+        <a href="profile.html">プロフィール</a>
         <button type="button" data-logout>ログアウト</button>
       </nav>
     </div>
   </header>
   <main class="app-shell">
-    <section class="section card">
-      <p class="eyebrow">運用実証の指標</p>
-      <h1>QRからの反応を見る</h1>
-      <p class="lead">page_view / video_play / video_ended / profile_click をD1に記録し、記録ごとに集計します。</p>
-      <div class="actions">
-        <button class="button" type="button" data-download-csv>CSVをダウンロード</button>
-      </div>
-      <div class="analytics-table-wrap" data-analytics-table>
-        <p class="note">読み込み中です。</p>
-      </div>
+    <section class="section form-card">
+      <p class="eyebrow">アクセス解析</p>
+      <h1>QR先の反応を見る</h1>
+      <p class="lead">PV、動画再生、動画完了、プロフィール遷移を分けて確認します。</p>
+      <div class="actions"><button class="button" type="button" data-download-csv>CSVをダウンロード</button></div>
+      <div class="analytics-table-wrap" data-analytics-table></div>
     </section>
   </main>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
-

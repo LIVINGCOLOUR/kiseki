@@ -1,12 +1,7 @@
 (function () {
   "use strict";
 
-  const authState = {
-    checked: false,
-    authenticated: false,
-    farmId: "",
-    farmer: null,
-  };
+  const authState = { checked: false, authenticated: false, farmId: "", farmer: null };
 
   async function apiJson(url, options) {
     const response = await fetch(url, {
@@ -53,20 +48,10 @@
       const button = event.target.closest("[data-logout]");
       if (!button) return;
       button.disabled = true;
-      try {
-        await apiJson("/api/auth/logout", { method: "POST", body: "{}" });
-      } finally {
-        window.location.href = "login.html";
-      }
+      try { await apiJson("/api/auth/logout", { method: "POST", body: "{}" }); }
+      finally { window.location.href = "login.html"; }
     });
   }
 
-  window.YNHAuth = {
-    apiJson,
-    getMe,
-    requireAuth,
-    setupLogout,
-    state: authState,
-  };
+  window.YNHAuth = { apiJson, getMe, requireAuth, setupLogout, state: authState };
 })();
-

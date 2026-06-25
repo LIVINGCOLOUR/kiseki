@@ -2,7 +2,6 @@
   "use strict";
 
   const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
   let selectedVideoFile = null;
   let selectedPhotoFiles = [];
@@ -22,13 +21,16 @@
     if (page === "profile") setupProfile();
     if (page === "harvest-admin") setupHarvestAdmin();
     if (page === "harvest") setupPublicHarvest();
-    if (page === "farmer") setupPublicFarmer();
+    if (page === "farmer") setupPublicProfile();
+    if (page === "records") setupPublicRecords();
     if (page === "analytics") setupAnalytics();
+    setupLightbox();
   });
 
   function currentPage() {
-    const last = location.pathname.split("/").pop() || "index.html";
-    return last.replace(/\.html$/, "");
+    const path = location.pathname.replace(/\/$/, "");
+    const last = path.split("/").pop() || "index.html";
+    return last.replace(/\.html$/, "") || "index";
   }
 
   function escapeHtml(value) {
@@ -59,10 +61,7 @@
       try {
         await window.YNHAuth.apiJson("/api/auth/login", {
           method: "POST",
-          body: JSON.stringify({
-            farmId: formData.get("farmId"),
-            adminKey: formData.get("adminKey"),
-          }),
+          body: JSON.stringify({ farmId: formData.get("farmId"), adminKey: formData.get("adminKey") }),
         });
         const next = new URLSearchParams(location.search).get("next") || "dashboard.html";
         window.location.href = next;
@@ -75,6 +74,8 @@
 
   async function setupDashboard() {
     const auth = window.YNHAuth.state;
+    const recordsLink = $("[data-records-link]");
+    if (recordsLink) recordsLink.href = `records.html?id=${encodeURIComponent(auth.farmId)}`;
     const container = $("[data-dashboard-records]");
     if (!container) return;
     try {
@@ -87,18 +88,13 @@
 
   function renderRecords(container, records) {
     if (!records.length) {
-      container.innerHTML = '<p class="note">登録済みコンテンツはまだありません。</p>';
+      container.innerHTML = '<p class="note">登録済みの軌跡はまだありません。</p>';
       return;
     }
     container.innerHTML = records.map((record) => `
       <article class="record-row">
-        <div>
-          <strong>${escapeHtml(record.title || "今日の畑の様子")}</strong>
-          <p class="note">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(record.productName || "品目未設定")}</p>
-        </div>
-        <div class="actions">
-          <a class="button" href="harvest.html?id=${encodeURIComponent(record.id)}" target="_blank" rel="noopener">公開ページ</a>
-        </div>
+        <div><strong>${escapeHtml(record.title || "今日の軌跡")}</strong><p class="note">${escapeHtml(formatDateJa(record.date))}</p></div>
+        <div class="actions"><a class="button" href="harvest.html?id=${encodeURIComponent(record.id)}" target="_blank" rel="noopener">公開ページ</a></div>
       </article>
     `).join("");
   }
@@ -121,13 +117,13 @@
 
     try {
       const data = await window.YNHAuth.apiJson(`/api/farmer/${encodeURIComponent(auth.farmId)}`, { method: "GET" });
-      const farmer = data.farmer || {};
-      fields.name.value = farmer.name || "";
-      fields.area.value = farmer.area || "";
-      fields.description.value = farmer.description || "";
-      fields.imageUrl.value = farmer.imageUrl || "";
-      fields.links.value = Array.isArray(farmer.links) ? farmer.links.map((item) => item.url || item).join("\n") : "";
-      fields.isPublic.checked = farmer.isPublic !== false;
+      const profile = data.farmer || {};
+      fields.name.value = profile.name || "";
+      fields.area.value = profile.area || "";
+      fields.description.value = profile.description || "";
+      fields.imageUrl.value = profile.imageUrl || "";
+      fields.links.value = Array.isArray(profile.links) ? profile.links.map((item) => item.url || item).join("\n") : "";
+      fields.isPublic.checked = profile.isPublic !== false;
     } catch (error) {
       status.textContent = error.message;
       status.classList.add("is-error");
@@ -136,15 +132,16 @@
     $("[data-profile-image]")?.addEventListener("change", async (event) => {
       const file = event.target.files?.[0];
       if (!file) return;
-      status.textContent = "画像をアップロードしています...";
+      status.textContent = "代表写真をアップロードしています...";
+      status.className = "status";
       const body = new FormData();
       body.append("image", file);
       try {
         const response = await fetch("/api/profile/upload", { method: "POST", credentials: "include", body });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "画像アップロードに失敗しました。");
+        if (!response.ok) throw new Error(data.error || "代表写真のアップロードに失敗しました。");
         fields.imageUrl.value = data.url;
-        status.textContent = "画像をアップロードしました。保存すると公開ページに反映されます。";
+        status.textContent = "代表写真をアップロードしました。保存すると公開プロフィールに反映されます。";
         status.className = "status is-success";
       } catch (error) {
         status.textContent = error.message;
@@ -160,14 +157,7 @@
       try {
         await window.YNHAuth.apiJson("/api/farmer/save", {
           method: "POST",
-          body: JSON.stringify({
-            name: fields.name.value,
-            area: fields.area.value,
-            description: fields.description.value,
-            imageUrl: fields.imageUrl.value,
-            links,
-            isPublic: fields.isPublic.checked,
-          }),
+          body: JSON.stringify({ name: fields.name.value, area: fields.area.value, description: fields.description.value, imageUrl: fields.imageUrl.value, links, isPublic: fields.isPublic.checked }),
         });
         status.textContent = "保存しました。";
         status.className = "status is-success";
@@ -182,15 +172,9 @@
     const form = $("[data-harvest-form]");
     if (!form) return;
     const status = $("[data-harvest-status]");
-    const fields = {
-      date: $('[name="date"]', form),
-      productName: $('[name="productName"]', form),
-      title: $('[name="title"]', form),
-      note: $('[name="note"]', form),
-    };
-    const videoInput = $("[data-harvest-video]");
-    const photoInput = $("[data-harvest-photos]");
+    const fields = { date: $('[name="date"]', form), title: $('[name="title"]', form), note: $('[name="note"]', form) };
     const videoPreview = $("[data-video-preview]");
+    const photoInput = $("[data-harvest-photos]");
     const photoPreview = $("[data-photo-preview]");
     if (fields.date && !fields.date.value) fields.date.value = new Date().toISOString().slice(0, 10);
 
@@ -199,12 +183,7 @@
       if (!(file instanceof File)) return;
       selectedVideoFile = file;
       renderVideoPreview(videoPreview, file);
-      setStatus(status, "完成動画を収穫動画に設定しました。", false);
-    });
-
-    videoInput?.addEventListener("change", () => {
-      selectedVideoFile = videoInput.files?.[0] || null;
-      renderVideoPreview(videoPreview, selectedVideoFile);
+      setStatus(status, "登録対象の動画を設定しました。", false, true);
     });
 
     photoInput?.addEventListener("change", () => {
@@ -216,33 +195,24 @@
       event.preventDefault();
       const auth = window.YNHAuth.state;
       const date = fields.date.value;
-      const productName = fields.productName.value.trim();
-      const recordId = createClientRecordId(auth.farmId, productName, date);
-      if (!date) return setStatus(status, "日付を入力してください。", true);
-      if (!selectedVideoFile) return setStatus(status, "完成動画を設定してください。", true);
+      const recordId = createClientRecordId(auth.farmId, date);
+      if (!date) return setStatus(status, "投稿日を入力してください。", true);
+      if (!selectedVideoFile && !selectedPhotoFiles.length) return setStatus(status, "動画または写真を設定してください。", true);
 
       try {
         setStatus(status, "動画と写真を保存しています...", false);
         const uploadForm = new FormData();
         uploadForm.append("recordId", recordId);
-        uploadForm.append("video", selectedVideoFile);
+        if (selectedVideoFile) uploadForm.append("video", selectedVideoFile);
         selectedPhotoFiles.forEach((file) => uploadForm.append("photo", file));
         const uploadResponse = await fetch("/api/harvest/upload", { method: "POST", credentials: "include", body: uploadForm });
         const uploadData = await uploadResponse.json();
         if (!uploadResponse.ok) throw new Error(uploadData.error || "アップロードに失敗しました。");
 
-        setStatus(status, "収穫記録を保存しています...", false);
+        setStatus(status, "記録を保存しています...", false);
         const saveData = await window.YNHAuth.apiJson("/api/harvest/save", {
           method: "POST",
-          body: JSON.stringify({
-            date,
-            productName,
-            title: fields.title.value.trim(),
-            note: fields.note.value.trim(),
-            videoUrl: uploadData.videoUrl,
-            videoThumbnailUrl: uploadData.videoThumbnailUrl,
-            photoUrls: uploadData.photoUrls,
-          }),
+          body: JSON.stringify({ date, productName: "", title: fields.title.value.trim(), note: fields.note.value.trim(), videoUrl: uploadData.videoUrl, videoThumbnailUrl: uploadData.videoThumbnailUrl, photoUrls: uploadData.photoUrls }),
         });
         lastSavedRecord = saveData.record;
         renderQr(saveData.record);
@@ -255,6 +225,7 @@
     $("[data-copy-url]")?.addEventListener("click", async () => {
       if (!lastSavedRecord) return;
       await navigator.clipboard?.writeText(getPublicHarvestUrl(lastSavedRecord.id));
+      setStatus(status, "公開URLをコピーしました。", false, true);
     });
     $("[data-download-qr]")?.addEventListener("click", () => {
       const canvas = $("[data-qr-canvas]");
@@ -269,7 +240,7 @@
   function renderVideoPreview(container, file) {
     if (!container) return;
     if (!file) {
-      container.innerHTML = '<p class="note">完成動画を設定するとここにプレビューが表示されます。</p>';
+      container.innerHTML = '<p class="note">動画を設定すると、ここにプレビューが表示されます。</p>';
       return;
     }
     const url = URL.createObjectURL(file);
@@ -278,11 +249,8 @@
 
   function renderPhotoPreview(container, files) {
     if (!container) return;
-    if (!files.length) {
-      container.innerHTML = "";
-      return;
-    }
-    container.innerHTML = files.map((file) => `<img src="${URL.createObjectURL(file)}" alt="">`).join("");
+    if (!files.length) { container.innerHTML = ""; return; }
+    container.innerHTML = files.map((file) => `<img src="${URL.createObjectURL(file)}" alt="選択した写真">`).join("");
   }
 
   function renderQr(record) {
@@ -291,9 +259,7 @@
     const urlEl = $("[data-qr-url]");
     const openLink = $("[data-open-public]");
     const url = getPublicHarvestUrl(record.id);
-    if (window.QRCodeLite && canvas) {
-      window.QRCodeLite.toCanvas(canvas, url, { scale: 6, margin: 4 });
-    }
+    if (window.QRCodeLite && canvas) window.QRCodeLite.toCanvas(canvas, url, { scale: 6, margin: 4 });
     if (urlEl) urlEl.textContent = url;
     if (openLink) openLink.href = url;
     if (box) box.hidden = false;
@@ -306,52 +272,89 @@
     try {
       const data = await fetchJson(`/api/harvest/${encodeURIComponent(id)}`);
       const record = data.record;
-      const farmer = data.farmer;
-      document.title = `${record.productName || "今日の畑の様子"} | やさいの背景`;
+      const profile = data.farmer;
+      const displayTitle = record.title || "今日の軌跡";
+      const photos = Array.isArray(record.photoUrls) ? record.photoUrls : [];
+      document.title = `${displayTitle} | 軌跡`;
       container.innerHTML = `
-        <p class="eyebrow">今日の畑の様子</p>
-        <h1>${escapeHtml(record.productName || "野菜")}</h1>
-        <p class="lead">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(farmer?.name || record.farmerId)}</p>
+        <p class="eyebrow">QRから見る</p>
+        <h1>${escapeHtml(displayTitle)}</h1>
+        <p class="lead">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(profile?.name || record.farmerId)}</p>
         ${record.videoUrl ? `<div class="video-box"><video src="${escapeHtml(record.videoUrl)}" poster="${escapeHtml(record.videoThumbnailUrl || "")}" controls playsinline preload="metadata" data-public-video></video></div>` : '<p class="note">この日の動画はまだありません。</p>'}
         ${record.note ? `<p>${escapeHtml(record.note)}</p>` : ""}
-        <div class="photo-grid">${(record.photoUrls || []).map((url) => `<img src="${escapeHtml(url)}" alt="">`).join("") || '<p class="note">この日の写真はまだありません。</p>'}</div>
-        <div class="actions"><a class="button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}" data-profile-click>農園プロフィールを見る</a></div>
+        <section class="public-gallery" aria-label="写真ギャラリー">
+          <h2>写真ギャラリー</h2>
+          <p class="note gallery-note">動画と一緒に残された写真です。クリックすると拡大できます。</p>
+          <div class="photo-grid">${photos.length ? photos.map((url, index) => `<button class="public-photo-link" type="button" data-lightbox-url="${escapeHtml(url)}"><img src="${escapeHtml(url)}" alt="写真 ${index + 1}"></button>`).join("") : '<p class="note">この日の写真はまだありません。</p>'}</div>
+        </section>
+        <div class="actions"><a class="button primary-button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}" data-profile-click>プロフィールを見る</a></div>
       `;
       window.YNHAnalytics?.track("page_view", { recordId: record.id, farmerId: record.farmerId });
       $("[data-public-video]")?.addEventListener("play", () => window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId }), { once: true });
       $("[data-public-video]")?.addEventListener("ended", () => window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId }));
       $("[data-profile-click]")?.addEventListener("click", () => window.YNHAnalytics?.track("profile_click", { recordId: record.id, farmerId: record.farmerId }));
     } catch (error) {
-      container.innerHTML = `<p class="eyebrow">今日の畑の様子</p><h1>記録が見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
+      container.innerHTML = `<p class="eyebrow">今日の軌跡</p><h1>記録が見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
     }
   }
 
-  async function setupPublicFarmer() {
+  async function setupPublicProfile() {
     const container = $("[data-farmer-public]");
-    const farmId = new URLSearchParams(location.search).get("id") || "farm-01";
+    const id = new URLSearchParams(location.search).get("id") || "id-01";
     if (!container) return;
     try {
-      const [farmerData, harvestData] = await Promise.all([
-        fetchJson(`/api/farmer/${encodeURIComponent(farmId)}`),
-        fetchJson(`/api/farmer/${encodeURIComponent(farmId)}/harvests`),
-      ]);
-      const farmer = farmerData.farmer;
-      const records = harvestData.records || [];
-      document.title = `${farmer.name} | やさいの背景`;
+      const [profileData, recordData] = await Promise.all([fetchJson(`/api/farmer/${encodeURIComponent(id)}`), fetchJson(`/api/farmer/${encodeURIComponent(id)}/harvests`)]);
+      const profile = profileData.farmer;
+      const records = recordData.records || [];
+      document.title = `${profile.name} | 軌跡`;
       container.innerHTML = `
-        ${farmer.imageUrl ? `<img src="${escapeHtml(farmer.imageUrl)}" alt="" style="width:100%;max-height:320px;object-fit:cover;border-radius:20px;">` : ""}
-        <p class="eyebrow">農園プロフィール</p>
-        <h1>${escapeHtml(farmer.name)}</h1>
-        <p class="lead">${escapeHtml(farmer.area || "地域未設定")}</p>
-        <p>${escapeHtml(farmer.description || "紹介文は準備中です。")}</p>
-        <h2>最近の畑の様子</h2>
-        <div class="records-list">
-          ${records.map((record) => `<a class="record-row" href="harvest.html?id=${encodeURIComponent(record.id)}"><span><strong>${escapeHtml(record.title || "今日の畑の様子")}</strong><br><span class="note">${escapeHtml(formatDateJa(record.date))}</span></span><span>見る →</span></a>`).join("") || '<p class="note">最近の記録はまだありません。</p>'}
-        </div>
+        ${profile.imageUrl ? `<img class="profile-cover" src="${escapeHtml(profile.imageUrl)}" alt="${escapeHtml(profile.name)}">` : ""}
+        <p class="eyebrow">プロフィール</p>
+        <h1>${escapeHtml(profile.name)}</h1>
+        <p class="lead">${escapeHtml(profile.area || "地域未設定")}</p>
+        <p>${escapeHtml(profile.description || "紹介文は準備中です。")}</p>
+        ${renderLinks(profile.links)}
+        <div class="actions"><a class="button primary-button" href="records.html?id=${encodeURIComponent(profile.id)}">最近の${escapeHtml(profile.name)}の様子</a></div>
+        <h2>最近の記録</h2>
+        <div class="records-list">${records.slice(0, 3).map((record) => recordLink(record)).join("") || '<p class="note">最近の記録はまだありません。</p>'}</div>
       `;
     } catch (error) {
-      container.innerHTML = `<h1>農園が見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
+      container.innerHTML = `<h1>プロフィールが見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
     }
+  }
+
+  async function setupPublicRecords() {
+    const container = $("[data-records-public]");
+    const id = new URLSearchParams(location.search).get("id") || "id-01";
+    if (!container) return;
+    try {
+      const [profileData, recordData] = await Promise.all([fetchJson(`/api/farmer/${encodeURIComponent(id)}`), fetchJson(`/api/farmer/${encodeURIComponent(id)}/harvests`)]);
+      const profile = profileData.farmer;
+      const records = recordData.records || [];
+      document.title = `最近の${profile.name}の様子 | 軌跡`;
+      container.innerHTML = `
+        <p class="eyebrow">最近の様子</p>
+        <h1>最近の${escapeHtml(profile.name)}の様子</h1>
+        <p class="lead">日ごとの記録を新しい順に表示しています。</p>
+        <div class="records-list">${records.map((record) => recordLink(record)).join("") || '<p class="note">記録はまだありません。</p>'}</div>
+        <div class="actions"><a class="button" href="farmer.html?id=${encodeURIComponent(profile.id)}">プロフィールへ戻る</a></div>
+      `;
+    } catch (error) {
+      container.innerHTML = `<h1>記録が見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
+    }
+  }
+
+  function recordLink(record) {
+    return `<a class="record-row" href="harvest.html?id=${encodeURIComponent(record.id)}"><span><strong>${escapeHtml(record.title || "今日の軌跡")}</strong><br><span class="note">${escapeHtml(formatDateJa(record.date))}</span></span><span>見る →</span></a>`;
+  }
+
+  function renderLinks(links) {
+    if (!Array.isArray(links) || !links.length) return "";
+    return `<div class="actions">${links.map((item, index) => {
+      const url = typeof item === "string" ? item : item.url;
+      const label = typeof item === "string" ? `関連リンク ${index + 1}` : (item.label || `関連リンク ${index + 1}`);
+      return `<a class="button" href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
+    }).join("")}</div>`;
   }
 
   async function setupAnalytics() {
@@ -368,28 +371,38 @@
   }
 
   function renderAnalyticsTable(container, rows) {
-    if (!rows.length) {
-      container.innerHTML = '<p class="note">解析対象のコンテンツはまだありません。</p>';
-      return;
-    }
-    container.innerHTML = `
-      <table>
-        <thead><tr><th>recordId</th><th>品目</th><th>日付</th><th>PV</th><th>再生</th><th>完了</th><th>農園遷移</th><th>再生率</th><th>完了率</th></tr></thead>
-        <tbody>
-          ${rows.map((row) => `<tr><td>${escapeHtml(row.id)}</td><td>${escapeHtml(row.productName)}</td><td>${escapeHtml(row.date)}</td><td>${row.pageViews}</td><td>${row.videoPlays}</td><td>${row.videoEnded}</td><td>${row.profileClicks}</td><td>${percent(row.playRate)}</td><td>${percent(row.completionRate)}</td></tr>`).join("")}
-        </tbody>
-      </table>
-    `;
+    if (!rows.length) { container.innerHTML = '<p class="note">解析対象の記録はまだありません。</p>'; return; }
+    container.innerHTML = `<table><thead><tr><th>recordId</th><th>タイトル</th><th>日付</th><th>PV</th><th>動画再生</th><th>動画完了</th><th>プロフィール遷移</th><th>再生率</th><th>完了率</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${escapeHtml(row.id)}</td><td>${escapeHtml(row.title || row.productName || "")}</td><td>${escapeHtml(row.date)}</td><td>${row.pageViews}</td><td>${row.videoPlays}</td><td>${row.videoEnded}</td><td>${row.profileClicks}</td><td>${percent(row.playRate)}</td><td>${percent(row.completionRate)}</td></tr>`).join("")}</tbody></table>`;
   }
 
   function downloadAnalyticsCsv() {
-    const header = ["recordId", "productName", "date", "pageViews", "videoPlays", "videoEnded", "profileClicks", "playRate", "completionRate", "profileClickRate"];
+    const header = ["recordId", "title", "date", "pageViews", "videoPlays", "videoEnded", "profileClicks", "playRate", "completionRate", "profileClickRate"];
     const rows = analyticsRows.map((row) => header.map((key) => JSON.stringify(row[key] ?? "")).join(","));
     const blob = new Blob([[header.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "yasai-no-haikei-analytics.csv";
+    link.download = "kiseki-analytics.csv";
     link.click();
+  }
+
+  function setupLightbox() {
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-lightbox-url]");
+      if (!trigger) return;
+      const url = trigger.dataset.lightboxUrl || "";
+      if (!url) return;
+      let box = $("[data-lightbox]");
+      if (!box) {
+        box = document.createElement("div");
+        box.className = "lightbox";
+        box.dataset.lightbox = "";
+        box.innerHTML = '<button type="button" aria-label="閉じる">×</button><img alt="拡大写真">';
+        document.body.appendChild(box);
+        box.addEventListener("click", (e) => { if (e.target === box || e.target.tagName === "BUTTON") box.classList.remove("is-open"); });
+      }
+      $("img", box).src = url;
+      box.classList.add("is-open");
+    });
   }
 
   async function fetchJson(url) {
@@ -399,9 +412,12 @@
     return data;
   }
 
-  function createClientRecordId(farmId, productName, date) {
-    const productSlug = String(productName || "").trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
-    return productSlug ? `${farmId}-${productSlug}-${date}` : `${farmId}-${date}`;
+  function createClientRecordId(profileId, date) {
+    return `${sanitizeSegment(profileId, "id")}-${date}`;
+  }
+
+  function sanitizeSegment(value, fallback) {
+    return String(value || "").trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || fallback;
   }
 
   function getPublicHarvestUrl(recordId) {
@@ -419,10 +435,7 @@
     const units = ["B", "KB", "MB", "GB"];
     let value = bytes;
     let index = 0;
-    while (value >= 1024 && index < units.length - 1) {
-      value /= 1024;
-      index += 1;
-    }
+    while (value >= 1024 && index < units.length - 1) { value /= 1024; index += 1; }
     return `${value.toFixed(index ? 1 : 0)} ${units[index]}`;
   }
 

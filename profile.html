@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>プロフィール編集 | やさいの背景</title>
+  <title>プロフィール編集 | 軌跡</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body data-require-auth>
   <header class="site-header">
     <div class="app-shell header-inner">
-      <a class="brand" href="dashboard.html"><span class="brand-mark">畑</span><span>やさいの背景<small>農園プロフィール編集</small></span></a>
+      <a class="brand" href="dashboard.html"><span class="brand-mark">軌</span><span>軌跡<small>プロフィール編集</small></span></a>
       <nav class="main-nav" aria-label="メインナビゲーション">
         <a href="dashboard.html">ダッシュボード</a>
         <a href="harvest-admin.html">動画登録</a>
@@ -20,32 +20,30 @@
   </header>
   <main class="app-shell">
     <section class="section form-card">
-      <p class="eyebrow">農園プロフィール</p>
+      <p class="eyebrow">プロフィール</p>
       <h1>公開ページを整える</h1>
       <form class="form-grid" data-profile-form>
         <div class="field">
-          <label for="farmName">農園名</label>
-          <input id="farmName" name="name" required />
+          <label for="profileName">名前</label>
+          <input id="profileName" name="name" required />
         </div>
         <div class="field">
-          <label for="farmArea">地域</label>
-          <input id="farmArea" name="area" placeholder="例：茨城県水戸市" />
+          <label for="profileArea">地域</label>
+          <input id="profileArea" name="area" placeholder="例：茨城県石岡市八郷" />
         </div>
         <div class="field">
-          <label for="farmDescription">紹介文</label>
-          <textarea id="farmDescription" name="description" placeholder="畑のこと、野菜のこと、届けたい背景を書いてください。"></textarea>
+          <label for="profileDescription">紹介文</label>
+          <textarea id="profileDescription" name="description" placeholder="活動のこと、大切にしていること、届けたい背景を書いてください。"></textarea>
+        </div>
+        <input type="hidden" name="imageUrl" />
+        <div class="field">
+          <label for="profileImageFile">代表写真をアップロード</label>
+          <input id="profileImageFile" type="file" accept="image/*" data-profile-image />
+          <p class="field-note">アップロードした写真はR2に保存され、公開プロフィールの代表写真として使われます。</p>
         </div>
         <div class="field">
-          <label for="farmImageUrl">代表写真URL</label>
-          <input id="farmImageUrl" name="imageUrl" placeholder="/api/media/profiles/farm-01/cover.jpg" />
-        </div>
-        <div class="field">
-          <label for="farmImageFile">代表写真をアップロード</label>
-          <input id="farmImageFile" type="file" accept="image/*" data-profile-image />
-        </div>
-        <div class="field">
-          <label for="farmLinks">関連リンク（1行に1URL）</label>
-          <textarea id="farmLinks" name="links" placeholder="https://example.com"></textarea>
+          <label for="profileLinks">関連リンク（1行に1URL）</label>
+          <textarea id="profileLinks" name="links" placeholder="https://example.com"></textarea>
         </div>
         <label><input type="checkbox" name="isPublic" checked /> 公開する</label>
         <div class="actions">
@@ -60,4 +58,3 @@
   <script src="js/main.js"></script>
 </body>
 </html>
-
