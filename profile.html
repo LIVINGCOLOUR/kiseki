@@ -43,7 +43,7 @@
         </div>
         <div class="field profile-links-field">
           <label>関連リンク（サイト名とURL）</label>
-          <p class="field-note">表示したいサイト名とURLを分けて入力してください。入力した分だけ公開ページに表示されます。最大10件まで登録できます。</p>
+          <p class="field-note">関連リンクはサイト名とURLを分けて入力してください。入力した分だけ公開ページに表示されます。最大10件まで登録できます。</p>
           <div class="profile-link-editor" data-profile-links-editor>
             <div class="profile-link-row" data-profile-link-row>
               <span>1</span>
@@ -97,7 +97,13 @@
             </div>
           </div>
         </div>
-        <label><input type="checkbox" name="isPublic" checked /> 公開する</label>
+        <div class="field">
+          <label for="profileVisibility">公開状態</label>
+          <select id="profileVisibility" name="isPublic">
+            <option value="true">公開する</option>
+            <option value="false">公開しない</option>
+          </select>
+        </div>
         <div class="actions">
           <button class="button primary-button" type="submit">保存する</button>
           <a class="button" href="farmer.html" data-profile-public-link>公開ページを見る</a>

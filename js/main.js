@@ -122,8 +122,8 @@
       fields.area.value = profile.area || "";
       fields.description.value = profile.description || "";
       fields.imageUrl.value = profile.imageUrl || "";
-      fields.links.value = Array.isArray(profile.links) ? profile.links.map((item) => item.url || item).join("\n") : "";
-      fields.isPublic.checked = profile.isPublic !== false;
+      populateProfileLinkRows(linkRows, profile.links || []);
+      fields.isPublic.value = profile.isPublic === false ? "false" : "true";
     } catch (error) {
       status.textContent = error.message;
       status.classList.add("is-error");
@@ -153,11 +153,11 @@
       event.preventDefault();
       status.textContent = "保存しています...";
       status.className = "status";
-      const links = fields.links.value.split(/\r?\n/).map((url) => url.trim()).filter(Boolean).map((url) => ({ label: url, url }));
+      const links = collectProfileLinks(linkRows);
       try {
         await window.YNHAuth.apiJson("/api/farmer/save", {
           method: "POST",
-          body: JSON.stringify({ name: fields.name.value, area: fields.area.value, description: fields.description.value, imageUrl: fields.imageUrl.value, links, isPublic: fields.isPublic.checked }),
+          body: JSON.stringify({ name: fields.name.value, area: fields.area.value, description: fields.description.value, imageUrl: fields.imageUrl.value, links, isPublic: fields.isPublic.value !== "false" }),
         });
         status.textContent = "保存しました。";
         status.className = "status is-success";
@@ -236,7 +236,7 @@
         setSelectedVideo(null, "");
         return;
       }
-      setSelectedVideo(file, "選んだ動画を登録対象にしました。複数本を1本に整えたい場合は「動画を整える」を押してください。");
+      setSelectedVideo(file, "選んだ動画を登録対象にしました。複数本を1本につなぎたい場合は「動画をつなぐ」を押してください。");
     });
 
     useSelectedButton?.addEventListener("click", () => {
@@ -252,7 +252,7 @@
     document.addEventListener("harvest-composed-video-ready", (event) => {
       const file = event.detail?.file;
       if (!(file instanceof File)) return;
-      setSelectedVideo(file, "整えた動画を登録対象にしました。");
+      setSelectedVideo(file, "つないだ動画を登録対象にしました。");
     });
 
     photoInput?.addEventListener("change", () => {
@@ -309,7 +309,7 @@
   function renderVideoPreview(container, file) {
     if (!container) return;
     if (!file) {
-      container.innerHTML = '<p class="note">動画を選ぶと、ここにプレビューが表示されます。複数本を1本に整えたい場合は「動画を整える」を押してください。</p>';
+      container.innerHTML = '<p class="note">動画の下に表示されます。複数枚添えられます。最初の写真はサムネイルにも使われます。</p>';
       return;
     }
     const url = URL.createObjectURL(file);
@@ -443,12 +443,13 @@
     }
     const href = `harvest.html?id=${encodeURIComponent(latest.id)}`;
     const thumb = latest.videoThumbnailUrl || "";
+    const videoPreview = !thumb && latest.videoUrl ? latest.videoUrl : "";
     return `
       <section class="public-profile-card public-profile-video-card" aria-labelledby="latest-video-title">
         <h2 id="latest-video-title">最近の動画</h2>
         <a class="public-profile-video-link" href="${href}">
           <span class="public-profile-video-thumb">
-            ${thumb ? `<img src="${escapeHtml(thumb)}" alt="">` : `<span class="public-profile-video-placeholder">▶</span>`}
+            ${thumb ? `<img src="${escapeHtml(thumb)}" alt="">` : (videoPreview ? `<video src="${escapeHtml(videoPreview)}" muted playsinline preload="metadata"></video>` : `<span class="public-profile-video-placeholder">▶</span>`)}
           </span>
           <span>
             <small>${escapeHtml(formatDateJa(latest.date))}</small>
@@ -479,15 +480,17 @@
 
   function getProfileInfoRows(profile) {
     const rows = [
-      { label: "地域", value: profile.area || "" },
+      { label: "拠点・地域", value: profile.area || "" },
     ];
     if (profile.id === "id-01") {
       rows.push(
-        { label: "主な内容", value: "季節の野菜 / 多品目野菜" },
-        { label: "販売", value: "直販（宅配便）" },
-        { label: "住所", value: "石岡市太田 409-1" },
-        { label: "TEL", value: "090-1734-9851", href: "tel:09017349851" },
-        { label: "MAIL", value: "yamadayamadanouen@gmail.com", href: "mailto:yamadayamadanouen@gmail.com" },
+        { label: "扱っているもの", value: "季節の野菜 / 多品目野菜" },
+        { label: "購入・依頼方法", value: "直販" },
+        { label: "受け取り・配送方法", value: "宅配便" },
+        { label: "見学・来店", value: "事前にお問い合わせください" },
+        { label: "所在地", value: "石岡市太田 409-1" },
+        { label: "電話", value: "090-1734-9851", href: "tel:09017349851" },
+        { label: "メール", value: "yamadayamadanouen@gmail.com", href: "mailto:yamadayamadanouen@gmail.com" },
       );
     }
     return rows;

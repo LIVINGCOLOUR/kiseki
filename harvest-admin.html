@@ -22,23 +22,21 @@
     <section class="section form-card">
       <p class="eyebrow">今日の軌跡</p>
       <h1>動画と写真を登録する</h1>
-      <p class="lead">1本の動画なら再生しやすいMP4へ整え、複数本なら選んだ順につなぎます。おすすめは3本です。5本まで選べますが、スマホによっては処理に時間がかかる場合があります。</p>
+      <p class="lead">複数動画を選んだ順につなぎます。最大5本。登録処理に一定の時間がかかります。</p>
     </section>
 
     <section class="section form-card" data-harvest-composer>
-      <p class="eyebrow">ブラウザ内で動画を整える</p>
       <h2>動画を選ぶ</h2>
-      <p class="note">元動画の音を使います。端末や動画形式によって音声が出ない場合は、別のMP4で登録をお試しください。撮影開始直後と終了直前は、カメラを少し静止させると自然につながります。</p>
       <div class="field">
         <label for="clipVideos">動画を1〜5本選ぶ</label>
         <input id="clipVideos" type="file" accept="video/*" multiple data-composer-input />
-        <p class="harvest-field-note">元動画は保存しません。保存するのは整えた完成MP4と写真だけです。</p>
+        <p class="harvest-field-note">音声は動画の音声が再生されます。</p>
       </div>
       <div class="harvest-composer-summary" data-composer-summary>動画はまだ選択されていません。</div>
       <div class="harvest-composer-warnings" data-composer-warnings hidden></div>
       <div class="harvest-composer-list" data-composer-list></div>
       <div class="actions">
-        <button class="button primary-button" type="button" data-composer-generate disabled>動画を整える</button>
+        <button class="button primary-button" type="button" data-composer-generate disabled>動画をつなぐ</button>
         <button class="button" type="button" data-use-selected-video disabled>この動画を登録対象にする</button>
         <button class="button" type="button" data-composer-reset>選び直す</button>
       </div>
@@ -76,16 +74,15 @@
       </div>
       <div class="field">
         <label>登録する動画</label>
-        <div data-video-preview><p class="note">動画を選ぶと、ここにプレビューが表示されます。複数本を1本に整えたい場合は「動画を整える」を押してください。</p></div>
+        <div data-video-preview><p class="note">動画の下に表示されます。複数枚添えられます。最初の写真はサムネイルにも使われます。</p></div>
       </div>
       <div class="field">
         <label for="harvestPhotos">写真ギャラリー</label>
         <input id="harvestPhotos" type="file" accept="image/*" multiple data-harvest-photos />
-        <p class="harvest-field-note">動画と一緒にQRページへ表示します。制作風景、現場の様子、作業場、手元、道具などを数枚添えられます。最初の写真はサムネイルにも使われます。</p>
         <div class="harvest-photo-preview-grid" data-photo-preview></div>
       </div>
       <div class="actions">
-        <button class="button primary-button" type="submit">保存してQRを発行する</button>
+        <button class="button primary-button" type="submit">保存してQRコードを発行します</button>
       </div>
       <p class="status" data-harvest-status role="status"></p>
       <div class="qr-box" data-qr-box hidden>
@@ -93,7 +90,7 @@
         <p class="note" data-qr-url></p>
         <div class="actions">
           <button class="button" type="button" data-copy-url>公開URLをコピー</button>
-          <button class="button" type="button" data-download-qr>QR PNGをダウンロード</button>
+          <button class="button" type="button" data-download-qr>QRコード画像をダウンロード</button>
           <a class="button" href="#" target="_blank" rel="noopener" data-open-public>公開ページを開く</a>
         </div>
       </div>
