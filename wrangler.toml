@@ -5,9 +5,8 @@ compatibility_date = "2024-06-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "yasai-no-haikei-db"
-database_id = "replace-with-your-d1-database-id"
+database_id = "b3d9f44d-f799-4995-8545-d77f6a6a5080"
 
 [[r2_buckets]]
 binding = "MEDIA_BUCKET"
 bucket_name = "yasai-no-haikei-media"
-

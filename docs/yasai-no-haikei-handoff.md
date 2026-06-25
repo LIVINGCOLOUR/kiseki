@@ -147,3 +147,13 @@ Functions/API:
 - docsだけの更新と実装変更をできるだけ混ぜない
 - 実機確認で問題が出た場合は、最小修正に絞る
 - 大きな仕様変更が必要な場合は実装せず、課題として報告する
+
+## 2026-06-25 本番初回deployメモ
+
+- 本番URL: `https://yasai-no-haikei.pages.dev/`
+- deploy元はrepo rootではなく、repo外の一時ディレクトリ `C:\Users\HOME\yasai-no-haikei-deploy`。
+- deploy対象にはHTML/CSS/JS/functions/vendorのみを含め、`.dev.vars`, `.wrangler/`, `.git/`, `node_modules/`, `docs/`, `README.md`, `.dev.vars.example`, `migrations/`, secrets保管フォルダは含めない。
+- 本番D1/R2/API smoke確認済み。R2 smokeでは小さなPNGをアップロードし、D1に `farm-01-smoke-2026-06-25` を保存して `/api/media/...` 取得まで確認した。
+- `functions/api/harvest/upload.js` は、Cloudflareのmultipart解析失敗やR2 binding不正を1101で落とさずJSONで返すよう最小防御を追加した。
+- このdeploy記録で反映した変更: `wrangler.toml`, `functions/api/harvest/upload.js`, README/docsのdeployメモ。
+- 次は、実機スマホで動画3本生成、実MP4アップロード、QR別端末確認、analytics画面確認を行う。

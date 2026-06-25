@@ -79,3 +79,12 @@
 - [ ] `shizenha-yasai-map` 側の `poc-video-composer-audio-test` をいつ削除するか判断する
 - [ ] 削除する場合は、独立repoで本番反映の見通しが立った後にユーザー確認を取る
 - [ ] 既存repo側の未コミット差分 `CLAUDE.md` とルート `README.md` の扱いを別途確認する
+
+## 本番初回deploy後の残タスク（2026-06-25）
+
+- [ ] 実機スマホで farm-01 にログインし、動画3本から完成MP4を生成できることを確認する。
+- [ ] 実機スマホで完成MP4に映像と音声が入ることを確認する。
+- [ ] 実MP4と写真を本番R2へアップロードし、元動画が保存されないことを確認する。
+- [ ] `harvest.html?id=...` を別端末のQR読み取りで開き、ログインなしで動画再生できることを確認する。
+- [ ] `analytics.html` で page_view / video_play / video_ended / profile_click の集計が期待通り見えることを確認する。
+- [ ] `vendor/ffmpeg/` のライセンス表記・NOTICE要否を確認する。

@@ -165,3 +165,15 @@ Cloudflareへ反映する前に、最低限以下を確認してください。
 - Functionsの本番Cookie安全性は `ENVIRONMENT=production` 設定に依存します。
 - `vendor/ffmpeg/` の同梱ライブラリは、本番公開前にライセンス表記・NOTICEの要否を確認してください。
 - この段階では、管理キー漏えい時の再発行UIや監査ログは未実装です。
+
+## 本番初回deploy状況（2026-06-25）
+
+- Pages project: `yasai-no-haikei`
+- 本番URL: `https://yasai-no-haikei.pages.dev/`
+- D1 database: `yasai-no-haikei-db`
+- R2 bucket: `yasai-no-haikei-media`
+- Pages Secrets/Variables: `SESSION_SECRET`, `FARM_ADMIN_KEYS_JSON`, `APP_BASE_URL`, `ENVIRONMENT` を設定済み
+- D1 remote migration: `0001_init.sql` 適用済み
+- 確認済み: トップ、ログイン、harvest-admin、harvestページ、ログインAPI、auth/me、analytics track、R2画像アップロード、harvest保存、media取得
+- Secrets値・本番管理キーはREADMEやdocsには記載しない。管理キー控えはrepo外のprivateフォルダで管理する。
+- 実機スマホでの動画3本生成、実MP4アップロード、別端末QR確認、analytics画面での集計確認は引き続き未確認。

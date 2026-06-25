@@ -155,3 +155,14 @@ R2 bucket: `yasai-no-haikei-media`
 - 本番Cloudflare D1/R2へのremote反映
 - 本番用Secrets設定
 - `ffmpeg.wasm` および同梱ライブラリのライセンス表記・NOTICE要否
+
+## 本番初回deploy状況（2026-06-25）
+
+- Pages project `yasai-no-haikei` を本番URL `https://yasai-no-haikei.pages.dev/` へ初回deploy済み。
+- D1 `yasai-no-haikei-db` を作成し、`wrangler.toml` の `database_id` に本番IDを反映済み。
+- R2 `yasai-no-haikei-media` を作成済み。
+- Cloudflare Pages に `SESSION_SECRET`, `FARM_ADMIN_KEYS_JSON`, `APP_BASE_URL`, `ENVIRONMENT` を設定済み。値はrepo内に保存しない。
+- D1 remote migration `0001_init.sql` 適用済み。
+- 本番URLで静的ページ、ログイン、`GET /api/auth/me`, `GET /api/farmer/farm-01`, `POST /api/analytics/track` を確認済み。
+- Node fetch + FormData による smoke test で、R2画像アップロード、D1収穫記録保存、`GET /api/harvest/{id}`, `/api/media/...` 取得を確認済み。
+- PowerShell 5.1/.NET の `MultipartFormDataContent` では Cloudflare `request.formData()` が `multipart form parse failed` になるケースを確認。ブラウザ相当の `fetch + FormData + Blob` では成功。
