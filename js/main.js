@@ -176,14 +176,41 @@
     const videoPreview = $("[data-video-preview]");
     const photoInput = $("[data-harvest-photos]");
     const photoPreview = $("[data-photo-preview]");
+    const composerInput = $("[data-composer-input]");
+    const useSelectedButton = $("[data-use-selected-video]");
+    const resetComposerButton = $("[data-composer-reset]");
     if (fields.date && !fields.date.value) fields.date.value = new Date().toISOString().slice(0, 10);
+
+    const setSelectedVideo = (file, message) => {
+      selectedVideoFile = file || null;
+      renderVideoPreview(videoPreview, selectedVideoFile);
+      if (useSelectedButton) useSelectedButton.disabled = !selectedVideoFile;
+      if (message) setStatus(status, message, false, true);
+    };
+
+    composerInput?.addEventListener("change", () => {
+      const file = Array.from(composerInput.files || []).find((item) => item.type.startsWith("video/")) || null;
+      if (!file) {
+        setSelectedVideo(null, "");
+        return;
+      }
+      setSelectedVideo(file, "選んだ動画を登録対象にしました。複数本を1本に整えたい場合は「動画を整える」を押してください。");
+    });
+
+    useSelectedButton?.addEventListener("click", () => {
+      const file = Array.from(composerInput?.files || []).find((item) => item.type.startsWith("video/")) || null;
+      if (!file) return setStatus(status, "登録する動画を選んでください。", true);
+      setSelectedVideo(file, "選んだ動画を登録対象にしました。");
+    });
+
+    resetComposerButton?.addEventListener("click", () => {
+      setSelectedVideo(null, "");
+    });
 
     document.addEventListener("harvest-composed-video-ready", (event) => {
       const file = event.detail?.file;
       if (!(file instanceof File)) return;
-      selectedVideoFile = file;
-      renderVideoPreview(videoPreview, file);
-      setStatus(status, "登録対象の動画を設定しました。", false, true);
+      setSelectedVideo(file, "整えた動画を登録対象にしました。");
     });
 
     photoInput?.addEventListener("change", () => {
@@ -240,7 +267,7 @@
   function renderVideoPreview(container, file) {
     if (!container) return;
     if (!file) {
-      container.innerHTML = '<p class="note">動画を設定すると、ここにプレビューが表示されます。</p>';
+      container.innerHTML = '<p class="note">動画を選ぶと、ここにプレビューが表示されます。複数本を1本に整えたい場合は「動画を整える」を押してください。</p>';
       return;
     }
     const url = URL.createObjectURL(file);
@@ -308,19 +335,132 @@
       const records = recordData.records || [];
       document.title = `${profile.name} | 軌跡`;
       container.innerHTML = `
-        ${profile.imageUrl ? `<img class="profile-cover" src="${escapeHtml(profile.imageUrl)}" alt="${escapeHtml(profile.name)}">` : ""}
-        <p class="eyebrow">プロフィール</p>
-        <h1>${escapeHtml(profile.name)}</h1>
-        <p class="lead">${escapeHtml(profile.area || "地域未設定")}</p>
-        <p>${escapeHtml(profile.description || "紹介文は準備中です。")}</p>
-        ${renderLinks(profile.links)}
-        <div class="actions"><a class="button primary-button" href="records.html?id=${encodeURIComponent(profile.id)}">最近の${escapeHtml(profile.name)}の様子</a></div>
-        <h2>最近の記録</h2>
-        <div class="records-list">${records.slice(0, 3).map((record) => recordLink(record)).join("") || '<p class="note">最近の記録はまだありません。</p>'}</div>
+        <div class="public-profile-shell">
+          <article class="public-profile-hero-card">
+            ${profile.imageUrl ? `<div class="public-profile-hero-image"><img src="${escapeHtml(profile.imageUrl)}" alt="${escapeHtml(profile.name)}"></div>` : ""}
+            <div class="public-profile-hero-copy">
+              <p class="eyebrow">プロフィール</p>
+              <h1>${escapeHtml(profile.name)}</h1>
+              <p class="public-profile-area">${escapeHtml(profile.area || "地域未設定")}</p>
+              <p>${escapeHtml(createProfileLead(profile))}</p>
+            </div>
+          </article>
+
+          ${renderProfileLatestVideo(records)}
+
+          <section class="public-profile-card public-profile-trace-card">
+            <p class="eyebrow">動画と写真でたどる</p>
+            <h2>最近の様子</h2>
+            <p>日ごとの動画や写真を、新しい順に見ることができます。</p>
+            <div class="actions"><a class="button primary-button" href="records.html?id=${encodeURIComponent(profile.id)}">これまでの記録を見る</a></div>
+          </section>
+
+          <section class="public-profile-card public-profile-story-card">
+            <p class="eyebrow">想い</p>
+            <h2>${escapeHtml(createProfileStoryTitle(profile))}</h2>
+            <p>${escapeHtml(profile.description || "紹介文は準備中です。")}</p>
+          </section>
+
+          ${renderProfileInfoCard(profile)}
+          ${renderProfileLinkCard(profile.links)}
+        </div>
       `;
     } catch (error) {
       container.innerHTML = `<h1>プロフィールが見つかりません</h1><p class="lead">${escapeHtml(error.message)}</p>`;
     }
+  }
+
+  function createProfileLead(profile) {
+    const description = String(profile.description || "").trim();
+    if (!description) return "その日の動画や写真と一緒に、背景にある想いを届けます。";
+    return description.split(/[。！？]/).filter(Boolean).slice(0, 1).join("。") + "。";
+  }
+
+  function createProfileStoryTitle(profile) {
+    const area = profile.area ? `${profile.area}で、` : "";
+    return `${area}日々を続ける`;
+  }
+
+  function renderProfileLatestVideo(records) {
+    const latest = records.find((record) => record.videoUrl) || records[0];
+    if (!latest) {
+      return `
+        <section class="public-profile-card">
+          <h2>最近の動画</h2>
+          <p class="note">最近の動画はまだありません。</p>
+        </section>`;
+    }
+    const href = `harvest.html?id=${encodeURIComponent(latest.id)}`;
+    const thumb = latest.videoThumbnailUrl || "";
+    return `
+      <section class="public-profile-card public-profile-video-card" aria-labelledby="latest-video-title">
+        <h2 id="latest-video-title">最近の動画</h2>
+        <a class="public-profile-video-link" href="${href}">
+          <span class="public-profile-video-thumb">
+            ${thumb ? `<img src="${escapeHtml(thumb)}" alt="">` : `<span class="public-profile-video-placeholder">▶</span>`}
+          </span>
+          <span>
+            <small>${escapeHtml(formatDateJa(latest.date))}</small>
+            <strong>${escapeHtml(latest.title || "今日の軌跡")}</strong>
+            ${latest.note ? `<em>${escapeHtml(latest.note)}</em>` : ""}
+          </span>
+          <b aria-hidden="true">→</b>
+        </a>
+      </section>`;
+  }
+
+  function renderProfileInfoCard(profile) {
+    const rows = getProfileInfoRows(profile).filter((row) => row.value);
+    if (!rows.length) return "";
+    return `
+      <section class="public-profile-card public-profile-info-card">
+        <p class="eyebrow">基本情報</p>
+        <dl>
+          ${rows.map((row) => `
+            <div>
+              <dt>${escapeHtml(row.label)}</dt>
+              <dd>${formatProfileInfoValue(row)}</dd>
+            </div>
+          `).join("")}
+        </dl>
+      </section>`;
+  }
+
+  function getProfileInfoRows(profile) {
+    const rows = [
+      { label: "地域", value: profile.area || "" },
+    ];
+    if (profile.id === "id-01") {
+      rows.push(
+        { label: "主な内容", value: "季節の野菜 / 多品目野菜" },
+        { label: "販売", value: "直販（宅配便）" },
+        { label: "住所", value: "石岡市太田 409-1" },
+        { label: "TEL", value: "090-1734-9851", href: "tel:09017349851" },
+        { label: "MAIL", value: "yamadayamadanouen@gmail.com", href: "mailto:yamadayamadanouen@gmail.com" },
+      );
+    }
+    return rows;
+  }
+
+  function formatProfileInfoValue(row) {
+    const text = escapeHtml(row.value);
+    return row.href ? `<a href="${escapeHtml(row.href)}">${text}</a>` : text;
+  }
+
+  function renderProfileLinkCard(links) {
+    if (!Array.isArray(links) || !links.length) return "";
+    return `
+      <section class="public-profile-card public-profile-links-card">
+        <p class="eyebrow">関連リンク</p>
+        <h2>最新情報は公式情報へ</h2>
+        <div class="public-profile-link-list">
+          ${links.map((item, index) => {
+            const url = typeof item === "string" ? item : item.url;
+            const label = typeof item === "string" ? `関連リンク ${index + 1}` : (item.label || `関連リンク ${index + 1}`);
+            return `<a class="public-profile-link-chip" href="${escapeHtml(url)}" target="_blank" rel="noopener"><span>${escapeHtml(label)}</span><span aria-hidden="true">↗</span></a>`;
+          }).join("")}
+        </div>
+      </section>`;
   }
 
   async function setupPublicRecords() {

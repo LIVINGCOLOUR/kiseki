@@ -39,6 +39,7 @@
       <div class="harvest-composer-list" data-composer-list></div>
       <div class="actions">
         <button class="button primary-button" type="button" data-composer-generate disabled>動画を整える</button>
+        <button class="button" type="button" data-use-selected-video disabled>この動画を登録対象にする</button>
         <button class="button" type="button" data-composer-reset>選び直す</button>
       </div>
       <div class="harvest-composer-progress" data-composer-progress hidden>
@@ -57,10 +58,6 @@
           <a class="button" href="#" download="kiseki-composed.mp4" data-composer-download>動画をダウンロード</a>
         </div>
       </div>
-      <details class="harvest-composer-dev">
-        <summary>PoC計測ログ</summary>
-        <pre data-composer-log>未実行</pre>
-      </details>
     </section>
 
     <form class="section form-card harvest-admin-form" data-harvest-form>
@@ -79,12 +76,12 @@
       </div>
       <div class="field">
         <label>登録する動画</label>
-        <div data-video-preview><p class="note">上の「この動画を登録対象にする」を押すと、ここにプレビューが表示されます。</p></div>
+        <div data-video-preview><p class="note">動画を選ぶと、ここにプレビューが表示されます。複数本を1本に整えたい場合は「動画を整える」を押してください。</p></div>
       </div>
       <div class="field">
         <label for="harvestPhotos">写真ギャラリー</label>
         <input id="harvestPhotos" type="file" accept="image/*" multiple data-harvest-photos />
-        <p class="harvest-field-note">動画と一緒にQRページへ表示します。制作風景、収穫風景、作業場、手元、道具などを数枚添えられます。最初の写真はサムネイルにも使われます。</p>
+        <p class="harvest-field-note">動画と一緒にQRページへ表示します。制作風景、現場の様子、作業場、手元、道具などを数枚添えられます。最初の写真はサムネイルにも使われます。</p>
         <div class="harvest-photo-preview-grid" data-photo-preview></div>
       </div>
       <div class="actions">
