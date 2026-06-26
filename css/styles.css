@@ -13,13 +13,24 @@
 * { box-sizing: border-box; }
 
 html {
-  min-height: 100%;
+  height: 100%;
   background: #efe3d1;
-  overscroll-behavior-y: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+@supports not (height: 100dvh) {
+  body { height: 100vh; }
 }
 
 body {
-  min-height: 100svh;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
   margin: 0;
   color: var(--ink);
   background:
@@ -28,8 +39,21 @@ body {
   background-color: #efe3d1;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.75;
-  overflow-x: hidden;
-  overscroll-behavior-y: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.site-header {
+  flex: 0 0 auto;
+}
+
+main.app-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
 }
 
 a { color: inherit; }
@@ -492,7 +516,8 @@ td {
 }
 
 .site-footer {
-  margin: 48px 0 24px;
+  flex: 0 0 auto;
+  margin: 10px 0 max(10px, env(safe-area-inset-bottom));
   color: var(--muted);
   font-size: .8rem;
   text-align: center;
@@ -501,7 +526,20 @@ td {
 @media (max-width: 760px) {
   .app-shell { width: min(100% - 24px, 640px); }
   .header-inner { align-items: center; flex-direction: row; min-height: 52px; padding: 7px 0; }
-  .main-nav { justify-content: flex-end; gap: 8px; font-size: .76rem; }
+  .brand { flex: 0 0 auto; }
+  .main-nav {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: .76rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .main-nav::-webkit-scrollbar { display: none; }
   .grid-2,
   .grid-3 { grid-template-columns: 1fr; }
   .section { margin: 18px 0; }
