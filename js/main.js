@@ -10,9 +10,11 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     window.YNHAuth?.setupLogout();
+    let authState = null;
     if (document.body.hasAttribute("data-require-auth")) {
-      const state = await window.YNHAuth.requireAuth();
-      if (!state) return;
+      authState = await window.YNHAuth.requireAuth();
+      if (!authState) return;
+      setupAuthenticatedNav(authState);
     }
 
     const page = currentPage();
@@ -31,6 +33,12 @@
     const path = location.pathname.replace(/\/$/, "");
     const last = path.split("/").pop() || "index.html";
     return last.replace(/\.html$/, "") || "index";
+  }
+
+  function setupAuthenticatedNav(auth) {
+    document.querySelectorAll("[data-records-link]").forEach((link) => {
+      link.href = `records.html?id=${encodeURIComponent(auth.farmId)}`;
+    });
   }
 
   function escapeHtml(value) {
