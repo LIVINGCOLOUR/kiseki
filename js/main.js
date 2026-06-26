@@ -229,14 +229,121 @@
     const composerInput = $("[data-composer-input]");
     const useSelectedButton = $("[data-use-selected-video]");
     const resetComposerButton = $("[data-composer-reset]");
+    const existingSelect = $("[data-existing-record-select]");
+    const clearVideoButton = $("[data-clear-video]");
+    const clearPhotosButton = $("[data-clear-photos]");
+    const deleteButton = $("[data-delete-harvest]");
+    const auth = window.YNHAuth.state;
+    let existingRecords = [];
+    let editingRecord = null;
+    let existingVideoUrl = "";
+    let existingVideoThumbnailUrl = "";
+    let existingPhotoUrls = [];
     if (fields.date && !fields.date.value) fields.date.value = new Date().toISOString().slice(0, 10);
+
+    const updateEditControls = () => {
+      if (clearVideoButton) clearVideoButton.hidden = !existingVideoUrl;
+      if (clearPhotosButton) clearPhotosButton.hidden = !existingPhotoUrls.length;
+      if (deleteButton) deleteButton.hidden = !editingRecord;
+    };
+
+    const hideQr = () => {
+      const box = $("[data-qr-box]");
+      if (box) box.hidden = true;
+      lastSavedRecord = null;
+    };
+
+    const clearLoadedRecord = (clearFields) => {
+      editingRecord = null;
+      existingVideoUrl = "";
+      existingVideoThumbnailUrl = "";
+      existingPhotoUrls = [];
+      selectedVideoFile = null;
+      selectedPhotoFiles = [];
+      if (composerInput) composerInput.value = "";
+      if (photoInput) photoInput.value = "";
+      if (useSelectedButton) useSelectedButton.disabled = true;
+      if (clearFields) {
+        fields.title.value = "";
+        fields.note.value = "";
+      }
+      renderVideoPreview(videoPreview, null);
+      renderPhotoPreview(photoPreview, []);
+      updateEditControls();
+      hideQr();
+    };
 
     const setSelectedVideo = (file, message) => {
       selectedVideoFile = file || null;
-      renderVideoPreview(videoPreview, selectedVideoFile);
+      if (selectedVideoFile) {
+        existingVideoUrl = "";
+        existingVideoThumbnailUrl = "";
+      }
+      renderVideoPreview(videoPreview, selectedVideoFile || (existingVideoUrl ? { url: existingVideoUrl, poster: existingVideoThumbnailUrl, name: "\u767b\u9332\u6e08\u307f\u306e\u52d5\u753b" } : null));
       if (useSelectedButton) useSelectedButton.disabled = !selectedVideoFile;
+      updateEditControls();
       if (message) setStatus(status, message, false, true);
     };
+
+    const loadRecordForEdit = (record, message) => {
+      editingRecord = record;
+      fields.date.value = record.date || fields.date.value;
+      fields.title.value = record.title || "";
+      fields.note.value = record.note || "";
+      selectedVideoFile = null;
+      selectedPhotoFiles = [];
+      existingVideoUrl = record.videoUrl || "";
+      existingVideoThumbnailUrl = record.videoThumbnailUrl || "";
+      existingPhotoUrls = Array.isArray(record.photoUrls) ? record.photoUrls.slice() : [];
+      if (composerInput) composerInput.value = "";
+      if (photoInput) photoInput.value = "";
+      if (useSelectedButton) useSelectedButton.disabled = true;
+      if (existingSelect) existingSelect.value = record.id;
+      renderVideoPreview(videoPreview, existingVideoUrl ? { url: existingVideoUrl, poster: existingVideoThumbnailUrl, name: "\u767b\u9332\u6e08\u307f\u306e\u52d5\u753b" } : null);
+      renderPhotoPreview(photoPreview, existingPhotoUrls);
+      lastSavedRecord = record;
+      renderQr(record);
+      updateEditControls();
+      if (message) setStatus(status, "\u767b\u9332\u6e08\u307f\u306e\u5185\u5bb9\u3092\u8aad\u307f\u8fbc\u307f\u307e\u3057\u305f\u3002", false, true);
+    };
+
+    const renderExistingOptions = (selectedId) => {
+      if (!existingSelect) return;
+      existingSelect.innerHTML = '<option value="">\u767b\u9332\u6e08\u307f\u306e\u6295\u7a3f\u65e5\u3092\u9078\u629e</option>' + existingRecords.map((record) => {
+        const selected = record.id === selectedId ? " selected" : "";
+        const label = `${record.date || ""} ${record.title || "\u7121\u984c"}`.trim();
+        return `<option value="${escapeHtml(record.id)}"${selected}>${escapeHtml(label)}</option>`;
+      }).join("");
+    };
+
+    const loadExistingRecords = async (selectedId) => {
+      try {
+        const data = await window.YNHAuth.apiJson(`/api/farmer/${encodeURIComponent(auth.farmId)}/harvests`, { method: "GET" });
+        existingRecords = data.records || [];
+        renderExistingOptions(selectedId);
+      } catch (error) {
+        if (existingSelect) existingSelect.innerHTML = '<option value="">\u767b\u9332\u6e08\u307f\u306e\u8aad\u307f\u8fbc\u307f\u306b\u5931\u6557\u3057\u307e\u3057\u305f</option>';
+      }
+    };
+
+    const findRecordByDate = (date) => existingRecords.find((record) => record.date === date);
+
+    loadExistingRecords();
+
+    existingSelect?.addEventListener("change", () => {
+      const record = existingRecords.find((item) => item.id === existingSelect.value);
+      if (record) loadRecordForEdit(record, true);
+    });
+
+    fields.date?.addEventListener("change", () => {
+      const record = findRecordByDate(fields.date.value);
+      if (record) {
+        loadRecordForEdit(record, true);
+      } else if (editingRecord) {
+        if (existingSelect) existingSelect.value = "";
+        clearLoadedRecord(true);
+      }
+    });
 
     composerInput?.addEventListener("change", () => {
       const file = Array.from(composerInput.files || []).find((item) => item.type.startsWith("video/")) || null;
@@ -244,56 +351,104 @@
         setSelectedVideo(null, "");
         return;
       }
-      setSelectedVideo(file, "選んだ動画を登録対象にしました。複数本を1本につなぎたい場合は「動画をつなぐ」を押してください。");
+      setSelectedVideo(file, "\u9078\u3093\u3060\u52d5\u753b\u3092\u767b\u9332\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002");
     });
 
     useSelectedButton?.addEventListener("click", () => {
       const file = Array.from(composerInput?.files || []).find((item) => item.type.startsWith("video/")) || null;
-      if (!file) return setStatus(status, "登録する動画を選んでください。", true);
-      setSelectedVideo(file, "選んだ動画を登録対象にしました。");
+      if (!file) return setStatus(status, "\u767b\u9332\u3059\u308b\u52d5\u753b\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002", true);
+      setSelectedVideo(file, "\u9078\u3093\u3060\u52d5\u753b\u3092\u767b\u9332\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002");
     });
 
     resetComposerButton?.addEventListener("click", () => {
       setSelectedVideo(null, "");
     });
 
+    clearVideoButton?.addEventListener("click", () => {
+      selectedVideoFile = null;
+      existingVideoUrl = "";
+      existingVideoThumbnailUrl = "";
+      if (composerInput) composerInput.value = "";
+      renderVideoPreview(videoPreview, null);
+      updateEditControls();
+      setStatus(status, "\u767b\u9332\u6e08\u307f\u52d5\u753b\u3092\u524a\u9664\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002\u4fdd\u5b58\u3059\u308b\u3068\u53cd\u6620\u3055\u308c\u307e\u3059\u3002", false, true);
+    });
+
+    clearPhotosButton?.addEventListener("click", () => {
+      selectedPhotoFiles = [];
+      existingPhotoUrls = [];
+      if (photoInput) photoInput.value = "";
+      renderPhotoPreview(photoPreview, []);
+      updateEditControls();
+      setStatus(status, "\u767b\u9332\u6e08\u307f\u5199\u771f\u3092\u524a\u9664\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002\u4fdd\u5b58\u3059\u308b\u3068\u53cd\u6620\u3055\u308c\u307e\u3059\u3002", false, true);
+    });
+
+    deleteButton?.addEventListener("click", async () => {
+      if (!editingRecord) return;
+      if (!window.confirm("\u3053\u306e\u6295\u7a3f\u65e5\u306e\u8a18\u9332\u3092\u524a\u9664\u3057\u307e\u3059\u304b\uff1f")) return;
+      try {
+        setStatus(status, "\u524a\u9664\u3057\u3066\u3044\u307e\u3059...", false);
+        await window.YNHAuth.apiJson(`/api/harvest/${encodeURIComponent(editingRecord.id)}`, { method: "DELETE" });
+        fields.title.value = "";
+        fields.note.value = "";
+        clearLoadedRecord(false);
+        if (existingSelect) existingSelect.value = "";
+        await loadExistingRecords();
+        setStatus(status, "\u524a\u9664\u3057\u307e\u3057\u305f\u3002", false, true);
+      } catch (error) {
+        setStatus(status, error.message, true);
+      }
+    });
+
     document.addEventListener("harvest-composed-video-ready", (event) => {
       const file = event.detail?.file;
       if (!(file instanceof File)) return;
-      setSelectedVideo(file, "つないだ動画を登録対象にしました。");
+      setSelectedVideo(file, "\u3064\u306a\u3044\u3060\u52d5\u753b\u3092\u767b\u9332\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002");
     });
 
     photoInput?.addEventListener("change", () => {
-      selectedPhotoFiles = Array.from(photoInput.files || []);
+      const files = Array.from(photoInput.files || []);
+      if (!files.length) return;
+      selectedPhotoFiles = files;
+      existingPhotoUrls = [];
       renderPhotoPreview(photoPreview, selectedPhotoFiles);
+      updateEditControls();
     });
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const auth = window.YNHAuth.state;
       const date = fields.date.value;
-      const recordId = createClientRecordId(auth.farmId, date);
-      if (!date) return setStatus(status, "投稿日を入力してください。", true);
-      if (!selectedVideoFile && !selectedPhotoFiles.length) return setStatus(status, "動画または写真を設定してください。", true);
+      if (!date) return setStatus(status, "\u6295\u7a3f\u65e5\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002", true);
+      if (!selectedVideoFile && !existingVideoUrl && !selectedPhotoFiles.length && !existingPhotoUrls.length) return setStatus(status, "\u52d5\u753b\u307e\u305f\u306f\u5199\u771f\u3092\u8a2d\u5b9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002", true);
 
       try {
-        setStatus(status, "動画と写真を保存しています...", false);
-        const uploadForm = new FormData();
-        uploadForm.append("recordId", recordId);
-        if (selectedVideoFile) uploadForm.append("video", selectedVideoFile);
-        selectedPhotoFiles.forEach((file) => uploadForm.append("photo", file));
-        const uploadResponse = await fetch("/api/harvest/upload", { method: "POST", credentials: "include", body: uploadForm });
-        const uploadData = await uploadResponse.json();
-        if (!uploadResponse.ok) throw new Error(uploadData.error || "アップロードに失敗しました。");
+        const recordId = createClientRecordId(auth.farmId, date);
+        let uploadData = { videoUrl: "", videoThumbnailUrl: "", photoUrls: [] };
+        if (selectedVideoFile || selectedPhotoFiles.length) {
+          setStatus(status, "\u52d5\u753b\u3068\u5199\u771f\u3092\u4fdd\u5b58\u3057\u3066\u3044\u307e\u3059...", false);
+          const uploadForm = new FormData();
+          uploadForm.append("recordId", recordId);
+          if (selectedVideoFile) uploadForm.append("video", selectedVideoFile);
+          selectedPhotoFiles.forEach((file) => uploadForm.append("photo", file));
+          const uploadResponse = await fetch("/api/harvest/upload", { method: "POST", credentials: "include", body: uploadForm });
+          uploadData = await uploadResponse.json();
+          if (!uploadResponse.ok) throw new Error(uploadData.error || "\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002");
+        }
 
-        setStatus(status, "記録を保存しています...", false);
+        const finalVideoUrl = selectedVideoFile ? uploadData.videoUrl : existingVideoUrl;
+        const finalVideoThumbnailUrl = selectedVideoFile ? (uploadData.videoThumbnailUrl || existingVideoThumbnailUrl) : existingVideoThumbnailUrl;
+        const finalPhotoUrls = selectedPhotoFiles.length ? uploadData.photoUrls : existingPhotoUrls;
+
+        setStatus(status, "\u8a18\u9332\u3092\u4fdd\u5b58\u3057\u3066\u3044\u307e\u3059...", false);
         const saveData = await window.YNHAuth.apiJson("/api/harvest/save", {
           method: "POST",
-          body: JSON.stringify({ date, productName: "", title: fields.title.value.trim(), note: fields.note.value.trim(), videoUrl: uploadData.videoUrl, videoThumbnailUrl: uploadData.videoThumbnailUrl, photoUrls: uploadData.photoUrls }),
+          body: JSON.stringify({ date, productName: "", title: fields.title.value.trim(), note: fields.note.value.trim(), videoUrl: finalVideoUrl, videoThumbnailUrl: finalVideoThumbnailUrl, photoUrls: finalPhotoUrls }),
         });
         lastSavedRecord = saveData.record;
+        loadRecordForEdit(saveData.record, false);
         renderQr(saveData.record);
-        setStatus(status, "保存しました。QRを発行しました。", false, true);
+        await loadExistingRecords(saveData.record.id);
+        setStatus(status, "\u4fdd\u5b58\u3057\u307e\u3057\u305f\u3002QR\u3092\u767a\u884c\u3057\u307e\u3057\u305f\u3002", false, true);
       } catch (error) {
         setStatus(status, error.message, true);
       }
@@ -302,7 +457,7 @@
     $("[data-copy-url]")?.addEventListener("click", async () => {
       if (!lastSavedRecord) return;
       await navigator.clipboard?.writeText(getPublicHarvestUrl(lastSavedRecord.id));
-      setStatus(status, "公開URLをコピーしました。", false, true);
+      setStatus(status, "\u516c\u958bURL\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f\u3002", false, true);
     });
     $("[data-download-qr]")?.addEventListener("click", () => {
       const canvas = $("[data-qr-canvas]");
@@ -314,21 +469,29 @@
     });
   }
 
-  function renderVideoPreview(container, file) {
+
+  function renderVideoPreview(container, source) {
     if (!container) return;
-    if (!file) {
-      container.innerHTML = '<p class="note">動画の下に表示されます。複数枚添えられます。最初の写真はサムネイルにも使われます。</p>';
+    if (!source) {
+      container.innerHTML = '<p class="note">\u52d5\u753b\u306e\u4e0b\u306b\u8868\u793a\u3055\u308c\u307e\u3059\u3002\u8907\u6570\u679a\u6dfb\u3048\u3089\u308c\u307e\u3059\u3002\u6700\u521d\u306e\u5199\u771f\u306f\u30b5\u30e0\u30cd\u30a4\u30eb\u306b\u3082\u4f7f\u308f\u308c\u307e\u3059\u3002</p>';
       return;
     }
-    const url = URL.createObjectURL(file);
-    container.innerHTML = `<div class="video-box"><video src="${url}" controls playsinline></video></div><p class="note">${escapeHtml(file.name)} / ${formatBytes(file.size)}</p>`;
+    const isFile = source instanceof File;
+    const url = isFile ? URL.createObjectURL(source) : String(source.url || source || "");
+    const poster = !isFile && source.poster ? ` poster="${escapeHtml(source.poster)}"` : "";
+    const label = isFile ? `${escapeHtml(source.name)} / ${formatBytes(source.size)}` : escapeHtml(source.name || "\u767b\u9332\u6e08\u307f\u306e\u52d5\u753b");
+    container.innerHTML = `<div class="video-box"><video src="${escapeHtml(url)}"${poster} controls playsinline preload="metadata"></video></div><p class="note">${label}</p>`;
   }
 
-  function renderPhotoPreview(container, files) {
+  function renderPhotoPreview(container, items) {
     if (!container) return;
-    if (!files.length) { container.innerHTML = ""; return; }
-    container.innerHTML = files.map((file) => `<img src="${URL.createObjectURL(file)}" alt="選択した写真">`).join("");
+    if (!items.length) { container.innerHTML = ""; return; }
+    container.innerHTML = items.map((item, index) => {
+      const url = item instanceof File ? URL.createObjectURL(item) : String(item.url || item || "");
+      return `<img src="${escapeHtml(url)}" alt="photo ${index + 1}">`;
+    }).join("");
   }
+
 
   function renderQr(record) {
     const box = $("[data-qr-box]");

@@ -67,6 +67,13 @@
         <input id="harvestDate" name="date" type="date" required />
       </div>
       <div class="field">
+        <label for="existingHarvestRecord">登録済みの投稿日</label>
+        <select id="existingHarvestRecord" data-existing-record-select>
+          <option value="">登録済みの投稿日を選択</option>
+        </select>
+        <p class="harvest-field-note" data-existing-record-note>選択すると内容を読み込みます。</p>
+      </div>
+      <div class="field">
         <label for="harvestTitle">タイトル</label>
         <input id="harvestTitle" name="title" placeholder="例：今朝の仕事場から" />
       </div>
@@ -77,14 +84,21 @@
       <div class="field">
         <label>登録する動画</label>
         <div data-video-preview><p class="note">動画の下に表示されます。複数枚添えられます。最初の写真はサムネイルにも使われます。</p></div>
+        <div class="actions harvest-edit-actions">
+          <button class="button" type="button" data-clear-video hidden>登録済み動画を削除</button>
+        </div>
       </div>
       <div class="field">
         <label for="harvestPhotos">写真ギャラリー</label>
         <input id="harvestPhotos" type="file" accept="image/*" multiple data-harvest-photos />
         <div class="harvest-photo-preview-grid" data-photo-preview></div>
+        <div class="actions harvest-edit-actions">
+          <button class="button" type="button" data-clear-photos hidden>登録済み写真を削除</button>
+        </div>
       </div>
       <div class="actions">
         <button class="button primary-button" type="submit">保存してQRコードを発行します</button>
+        <button class="button danger-button" type="button" data-delete-harvest hidden>この投稿日を削除</button>
       </div>
       <p class="status" data-harvest-status role="status"></p>
       <div class="qr-box" data-qr-box hidden>
