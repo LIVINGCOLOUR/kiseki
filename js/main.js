@@ -233,18 +233,46 @@
     const clearVideoButton = $("[data-clear-video]");
     const clearPhotosButton = $("[data-clear-photos]");
     const deleteButton = $("[data-delete-harvest]");
+    const submitButton = $('button[type="submit"]', form);
     const auth = window.YNHAuth.state;
+    const submitButtonLabel = submitButton?.textContent || "保存してQRコードを発行します";
     let existingRecords = [];
     let editingRecord = null;
     let existingVideoUrl = "";
     let existingVideoThumbnailUrl = "";
     let existingPhotoUrls = [];
+    let isSaving = false;
     if (fields.date && !fields.date.value) fields.date.value = new Date().toISOString().slice(0, 10);
+
+    const setFormSaving = (saving, buttonLabel, message) => {
+      isSaving = saving;
+      form.classList.toggle("is-saving", saving);
+      if (submitButton) {
+        submitButton.disabled = saving;
+        submitButton.textContent = saving ? (buttonLabel || "保存しています...") : submitButtonLabel;
+        submitButton.setAttribute("aria-busy", saving ? "true" : "false");
+      }
+      [deleteButton, clearVideoButton, clearPhotosButton, resetComposerButton].forEach((button) => {
+        if (button) button.disabled = saving;
+      });
+      if (useSelectedButton) useSelectedButton.disabled = saving || !selectedVideoFile;
+      if (message) setStatus(status, message, false);
+    };
+
+    const friendlyHarvestError = (error) => {
+      const message = String(error?.message || "");
+      const lower = message.toLowerCase();
+      if (lower.includes("unauthorized") || message.includes("ログイン")) return "ログイン状態を確認してください。もう一度ログインしてから保存してください。";
+      if (lower.includes("failed to fetch") || lower.includes("network")) return "通信に失敗しました。電波状況を確認して、もう一度お試しください。";
+      if (lower.includes("payload") || lower.includes("large") || lower.includes("413") || message.includes("アップロード")) return "保存できませんでした。動画や写真の容量が大きすぎる可能性があります。短い動画や枚数を減らしてお試しください。";
+      return message || "保存できませんでした。入力内容と通信状況を確認して、もう一度お試しください。";
+    };
 
     const updateEditControls = () => {
       if (clearVideoButton) clearVideoButton.hidden = !existingVideoUrl;
       if (clearPhotosButton) clearPhotosButton.hidden = !existingPhotoUrls.length;
       if (deleteButton) deleteButton.hidden = !editingRecord;
+      if (useSelectedButton) useSelectedButton.disabled = isSaving || !selectedVideoFile;
     };
 
     const hideQr = () => {
@@ -280,7 +308,7 @@
         existingVideoThumbnailUrl = "";
       }
       renderVideoPreview(videoPreview, selectedVideoFile || (existingVideoUrl ? { url: existingVideoUrl, poster: existingVideoThumbnailUrl, name: "\u767b\u9332\u6e08\u307f\u306e\u52d5\u753b" } : null));
-      if (useSelectedButton) useSelectedButton.disabled = !selectedVideoFile;
+      if (useSelectedButton) useSelectedButton.disabled = isSaving || !selectedVideoFile;
       updateEditControls();
       if (message) setStatus(status, message, false, true);
     };
@@ -384,10 +412,11 @@
     });
 
     deleteButton?.addEventListener("click", async () => {
+      if (isSaving) return;
       if (!editingRecord) return;
       if (!window.confirm("\u3053\u306e\u6295\u7a3f\u65e5\u306e\u8a18\u9332\u3092\u524a\u9664\u3057\u307e\u3059\u304b\uff1f")) return;
       try {
-        setStatus(status, "\u524a\u9664\u3057\u3066\u3044\u307e\u3059...", false);
+        setFormSaving(true, "削除しています...", "\u524a\u9664\u3057\u3066\u3044\u307e\u3059...");
         await window.YNHAuth.apiJson(`/api/harvest/${encodeURIComponent(editingRecord.id)}`, { method: "DELETE" });
         fields.title.value = "";
         fields.note.value = "";
@@ -396,7 +425,9 @@
         await loadExistingRecords();
         setStatus(status, "\u524a\u9664\u3057\u307e\u3057\u305f\u3002", false, true);
       } catch (error) {
-        setStatus(status, error.message, true);
+        setStatus(status, friendlyHarvestError(error), true);
+      } finally {
+        setFormSaving(false);
       }
     });
 
@@ -417,15 +448,17 @@
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (isSaving) return;
       const date = fields.date.value;
       if (!date) return setStatus(status, "\u6295\u7a3f\u65e5\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002", true);
       if (!selectedVideoFile && !existingVideoUrl && !selectedPhotoFiles.length && !existingPhotoUrls.length) return setStatus(status, "\u52d5\u753b\u307e\u305f\u306f\u5199\u771f\u3092\u8a2d\u5b9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002", true);
 
       try {
+        setFormSaving(true, "保存しています...", "保存を開始しています。画面を閉じずにお待ちください。");
         const recordId = createClientRecordId(auth.farmId, date);
         let uploadData = { videoUrl: "", videoThumbnailUrl: "", photoUrls: [] };
         if (selectedVideoFile || selectedPhotoFiles.length) {
-          setStatus(status, "\u52d5\u753b\u3068\u5199\u771f\u3092\u4fdd\u5b58\u3057\u3066\u3044\u307e\u3059...", false);
+          setFormSaving(true, "アップロード中...", "動画と写真を保存しています。容量によって少し時間がかかります。");
           const uploadForm = new FormData();
           uploadForm.append("recordId", recordId);
           if (selectedVideoFile) uploadForm.append("video", selectedVideoFile);
@@ -439,7 +472,7 @@
         const finalVideoThumbnailUrl = selectedVideoFile ? (uploadData.videoThumbnailUrl || existingVideoThumbnailUrl) : existingVideoThumbnailUrl;
         const finalPhotoUrls = selectedPhotoFiles.length ? uploadData.photoUrls : existingPhotoUrls;
 
-        setStatus(status, "\u8a18\u9332\u3092\u4fdd\u5b58\u3057\u3066\u3044\u307e\u3059...", false);
+        setFormSaving(true, "記録を保存中...", "\u8a18\u9332\u3092\u4fdd\u5b58\u3057\u3066\u3044\u307e\u3059...");
         const saveData = await window.YNHAuth.apiJson("/api/harvest/save", {
           method: "POST",
           body: JSON.stringify({ date, productName: "", title: fields.title.value.trim(), note: fields.note.value.trim(), videoUrl: finalVideoUrl, videoThumbnailUrl: finalVideoThumbnailUrl, photoUrls: finalPhotoUrls }),
@@ -449,8 +482,11 @@
         renderQr(saveData.record);
         await loadExistingRecords(saveData.record.id);
         setStatus(status, "\u4fdd\u5b58\u3057\u307e\u3057\u305f\u3002QR\u3092\u767a\u884c\u3057\u307e\u3057\u305f\u3002", false, true);
+        $("[data-qr-box]")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       } catch (error) {
-        setStatus(status, error.message, true);
+        setStatus(status, friendlyHarvestError(error), true);
+      } finally {
+        setFormSaving(false);
       }
     });
 

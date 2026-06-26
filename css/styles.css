@@ -353,6 +353,28 @@ textarea { min-height: 120px; resize: vertical; }
 .status.is-error { color: #9b4c22; }
 .status.is-success { color: var(--leaf); }
 
+.status:not(:empty) {
+  padding: 10px 12px;
+  border: 1px solid rgba(42, 74, 50, .12);
+  border-radius: 14px;
+  background: rgba(255, 253, 247, .82);
+  font-weight: 800;
+}
+
+.status.is-error:not(:empty) {
+  border-color: rgba(155, 76, 34, .22);
+  background: #fff7ef;
+}
+
+.status.is-success:not(:empty) {
+  border-color: rgba(45, 111, 66, .22);
+  background: rgba(232, 243, 224, .82);
+}
+
+.harvest-admin-form.is-saving {
+  box-shadow: 0 0 0 3px rgba(45, 111, 66, .08), var(--shadow);
+}
+
 .dashboard-list,
 .records-list,
 .analytics-table-wrap {
