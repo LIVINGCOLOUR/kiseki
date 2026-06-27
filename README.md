@@ -1,10 +1,13 @@
 # 軌跡
 
-公開URL: https://kiseki.dev/
+公開URL: https://yasai-no-haikei.pages.dev/
+GitHub: https://github.com/LIVINGCOLOUR/kiseki
 
 `軌跡` は、売場や作品に添えたQRから、作り手がその日に残した動画・写真・プロフィールを見られる運用実証用プロトタイプです。
 
-技術リポジトリ名、Cloudflare Pages project、D1/R2名は当面 `yasai-no-haikei` のまま維持します。ユーザーに見せるアプリ名だけを `軌跡` として扱います。
+GitHubリポジトリ名は `kiseki` です。Cloudflare Pages project、D1名、R2名は当面 `yasai-no-haikei` のまま維持します。ユーザーに見せるアプリ名を `軌跡` として扱います。
+
+`https://kiseki.dev/` は現在の掲載URLではありません。2026-06-27時点ではCloudflare SSL 525で正常公開されていないため、復旧確認までは `https://yasai-no-haikei.pages.dev/` を正とします。`https://kiseki.pages.dev/` は別サイトです。
 
 ## 目的
 
@@ -70,7 +73,7 @@ QR先ページでは `ffmpeg.wasm` や `js/video-composer.js` を読み込みま
 `.dev.vars.example` を参考に、ローカル用 `.dev.vars` を作成してください。`.dev.vars` はGit追跡対象外です。
 
 ```powershell
-cd C:\Users\HOME\yasai-no-haikei
+cd C:\Users\HOME\kiseki
 npx wrangler d1 migrations apply yasai-no-haikei-db --local
 npx wrangler pages dev . --ip 0.0.0.0 --port 8788
 ```
