@@ -3,9 +3,12 @@
 ## 正本
 
 - 表示名: 軌跡
-- 技術リポジトリ: `LIVINGCOLOUR/yasai-no-haikei`
-- ローカルパス: `C:\Users\HOME\yasai-no-haikei`
+- GitHub: `https://github.com/LIVINGCOLOUR/kiseki`
+- 公開URL: `https://yasai-no-haikei.pages.dev/`
+- ローカルパス例: `C:\Users\HOME\kiseki`
 - Cloudflare project / D1 / R2名: 当面 `yasai-no-haikei` を維持
+- `https://kiseki.dev/`: 2026-06-27時点でCloudflare SSL 525のため掲載URLとして使わない
+- `https://kiseki.pages.dev/`: 別サイトのため使わない
 
 ## 目的
 
@@ -44,6 +47,7 @@
 ## 確認済み
 
 - Cloudflare初回deploy済み
+- `https://yasai-no-haikei.pages.dev/` のトップが200で表示されることを確認済み
 - D1/R2/Pages Functionsの基本疎通済み
 - 小さな画像アップロードと記録保存は確認済み
 
