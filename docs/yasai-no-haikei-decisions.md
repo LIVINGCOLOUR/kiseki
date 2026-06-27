@@ -3,7 +3,11 @@
 ## 決定事項
 
 - 表示名は `軌跡` とする。
-- 技術リポジトリ、Cloudflare project、D1/R2名は当面 `yasai-no-haikei` のまま維持する。
+- GitHubリポジトリは `LIVINGCOLOUR/kiseki` とする。
+- 公開URLは `https://yasai-no-haikei.pages.dev/` を正とする。
+- Cloudflare project、D1/R2名は当面 `yasai-no-haikei` のまま維持する。
+- `https://kiseki.dev/` はCloudflare SSL 525が解消するまで掲載URLとして使わない。
+- `https://kiseki.pages.dev/` は別サイトなので使わない。
 - 既存の「自然派やさいマップ」とは別アプリとして扱う。
 - 消費者アカウントは作らない。
 - 作り手だけが簡易ログインする。
