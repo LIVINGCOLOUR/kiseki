@@ -1,5 +1,12 @@
 # 軌跡 todo
 
+## 掲載・公開URL
+
+- GitHub掲載URLは `https://yasai-no-haikei.pages.dev/` に統一済み
+- `https://yasai-no-haikei.pages.dev/` のトップが200で表示されることを確認済み
+- `https://kiseki.dev/` を使う場合はCloudflare SSL 525を解消し、疎通確認後にREADME/docs/GitHub掲載URLを差し替える
+- `https://kiseki.pages.dev/` は別サイトなので使わない
+
 ## 優先度 高
 
 - ローカル `wrangler pages dev` で `id-01` ログイン確認
