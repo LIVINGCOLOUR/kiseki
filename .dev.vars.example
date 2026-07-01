@@ -1,3 +1,5 @@
+# Local development dummy values only.
+# Do not use production secrets here, and do not publish real admin keys.
 SESSION_SECRET="local-dev-session-secret-change-me"
 FARM_ADMIN_KEYS_JSON='{"id-01":"local-id-01-key","id-02":"local-id-02-key","id-03":"local-id-03-key","id-04":"local-id-04-key","id-05":"local-id-05-key"}'
 APP_BASE_URL="http://localhost:8788"

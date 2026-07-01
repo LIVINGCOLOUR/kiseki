@@ -26,6 +26,8 @@ QRから、作り手がその日に残した動画・写真・プロフィール
 - 内部API/DB名の `farmer` は互換性維持のため残っている。
 - `.dev.vars` はローカル専用でGit追跡対象外。
 - 本番Cloudflare Secretsとremote D1のID移行はまだ行っていない。
+- `あなたも軌跡` は標準機能ではなく、有料追加機能・ギフト向け機能としてdocsに設計方針だけを整理している。
+- `あなたも軌跡` の正は `docs/yasai-no-haikei-anata-mo-kiseki.md`。今回は実装しない。
 
 ## 実装済み導線
 
@@ -46,6 +48,7 @@ QRから、作り手がその日に残した動画・写真・プロフィール
 4. `records.html` から日別記録へ進めるか確認。
 5. 本番Secrets/D1を `id-01` 系へ移行するか判断して、必要なら別作業として安全に実施。
 6. `kiseki.dev` を使う場合はCloudflare SSL 525を解消し、疎通確認後に掲載URLを差し替える。
+7. 焼き菓子販売で `あなたも軌跡` のPoCを検討する。農家PoCでは共通ストーリーのみを使う。
 
 ## 絶対に避けること
 
@@ -55,6 +58,9 @@ QRから、作り手がその日に残した動画・写真・プロフィール
 - 既存 `shizenha-yasai-map` を編集しない。
 - Cloudflare本番Secretやremote D1を確認なしで変更しない。
 - QR先ページでffmpegを読み込まない。
+- `あなたも軌跡` を標準機能として扱わない。
+- 顧客同意なしで手渡し動画を撮らない。
+- 5秒以内に急いで渡させるような撮影設計にしない。
 
 ## commit / push 方針
 
@@ -62,6 +68,6 @@ QRから、作り手がその日に残した動画・写真・プロフィール
 
 ## 管理キー固定方針
 
-ユーザー指定の管理キーを正とし、Codex側で勝手に再生成・変更しない。値そのものはREADME/docs/gitに書かない。repo外の `C:\Users\HOME\yasai-no-haikei-secrets\production-admin-keys.txt` と Cloudflare Pages Secret `FARM_ADMIN_KEYS_JSON` を正として扱う。
+ユーザー指定の管理キーを正とし、Codex側で勝手に再生成・変更しない。値そのものはREADME/docs/gitに書かない。repo外の非公開控えと Cloudflare Pages Secret `FARM_ADMIN_KEYS_JSON` を正として扱う。
 
 旧 `farm-01`〜`farm-05` と新 `id-01`〜`id-05` は、移行期間中は同じ管理キーで入れるようにする。

@@ -36,6 +36,12 @@
 
 `harvest.html?id={recordId}` は、動画、写真ギャラリー、プロフィールボタンの順に表示する。QR先では `ffmpeg.wasm` と `js/video-composer.js` を読み込まない。
 
+## 追加機能案
+
+`あなたも軌跡` は、標準機能ではなく有料追加機能・ギフト向け機能として検討する。共通ストーリーの最後に、顧客へ商品を手渡す瞬間の手元動画を追加する顧客専用QR体験である。
+
+設計方針は `docs/yasai-no-haikei-anata-mo-kiseki.md` を正とする。今回はdocs整理のみで、実装コード、Cloudflare、D1/R2/Secretsは変更しない。
+
 ## 保存方針
 
 - 完成MP4: R2
@@ -59,3 +65,4 @@
 - QR別端末確認
 - analytics画面での集計確認
 - 本番Secrets/D1を `id-01` 系へ移行するかの判断
+- `あなたも軌跡` の焼き菓子販売PoC
