@@ -33,6 +33,7 @@ export async function onRequestGet(context) {
     const videoPlays = countMap.get(`${record.id}:video_play`) || 0;
     const videoEnded = countMap.get(`${record.id}:video_ended`) || 0;
     const profileClicks = countMap.get(`${record.id}:profile_click`) || 0;
+    const likeClicks = countMap.get(`${record.id}:like_click`) || 0;
     return {
       id: record.id,
       productName: record.product_name || "",
@@ -42,6 +43,7 @@ export async function onRequestGet(context) {
       videoPlays,
       videoEnded,
       profileClicks,
+      likeClicks,
       playRate: pageViews ? videoPlays / pageViews : 0,
       completionRate: videoPlays ? videoEnded / videoPlays : 0,
       profileClickRate: pageViews ? profileClicks / pageViews : 0,
@@ -50,4 +52,3 @@ export async function onRequestGet(context) {
 
   return json({ ok: true, rows });
 }
-

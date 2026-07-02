@@ -406,7 +406,9 @@
       state.metrics.elapsedMs = Math.round(performance.now() - state.startedAt);
       state.metrics.ffmpegTail = state.ffmpegMessages.slice(-12);
       renderResult(ui);
+      dispatchComposedVideo(file);
       showProgress(ui, "完成しました", 100);
+      window.alert("動画が完成しました。下の「登録する動画」で動画内容を確認してください。");
       console.info("Kiseki video compose PoC", state.metrics);
       updateLog(ui, state.metrics);
     } catch (error) {

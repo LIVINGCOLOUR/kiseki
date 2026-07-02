@@ -227,7 +227,6 @@
     const photoInput = $("[data-harvest-photos]");
     const photoPreview = $("[data-photo-preview]");
     const composerInput = $("[data-composer-input]");
-    const useSelectedButton = $("[data-use-selected-video]");
     const resetComposerButton = $("[data-composer-reset]");
     const existingSelect = $("[data-existing-record-select]");
     const clearVideoButton = $("[data-clear-video]");
@@ -255,7 +254,6 @@
       [deleteButton, clearVideoButton, clearPhotosButton, resetComposerButton].forEach((button) => {
         if (button) button.disabled = saving;
       });
-      if (useSelectedButton) useSelectedButton.disabled = saving || !selectedVideoFile;
       if (message) setStatus(status, message, false);
     };
 
@@ -272,7 +270,6 @@
       if (clearVideoButton) clearVideoButton.hidden = !existingVideoUrl;
       if (clearPhotosButton) clearPhotosButton.hidden = !existingPhotoUrls.length;
       if (deleteButton) deleteButton.hidden = !editingRecord;
-      if (useSelectedButton) useSelectedButton.disabled = isSaving || !selectedVideoFile;
     };
 
     const hideQr = () => {
@@ -290,7 +287,6 @@
       selectedPhotoFiles = [];
       if (composerInput) composerInput.value = "";
       if (photoInput) photoInput.value = "";
-      if (useSelectedButton) useSelectedButton.disabled = true;
       if (clearFields) {
         fields.title.value = "";
         fields.note.value = "";
@@ -308,7 +304,6 @@
         existingVideoThumbnailUrl = "";
       }
       renderVideoPreview(videoPreview, selectedVideoFile || (existingVideoUrl ? { url: existingVideoUrl, poster: existingVideoThumbnailUrl, name: "\u767b\u9332\u6e08\u307f\u306e\u52d5\u753b" } : null));
-      if (useSelectedButton) useSelectedButton.disabled = isSaving || !selectedVideoFile;
       updateEditControls();
       if (message) setStatus(status, message, false, true);
     };
@@ -325,7 +320,6 @@
       existingPhotoUrls = Array.isArray(record.photoUrls) ? record.photoUrls.slice() : [];
       if (composerInput) composerInput.value = "";
       if (photoInput) photoInput.value = "";
-      if (useSelectedButton) useSelectedButton.disabled = true;
       if (existingSelect) existingSelect.value = record.id;
       renderVideoPreview(videoPreview, existingVideoUrl ? { url: existingVideoUrl, poster: existingVideoThumbnailUrl, name: "\u767b\u9332\u6e08\u307f\u306e\u52d5\u753b" } : null);
       renderPhotoPreview(photoPreview, existingPhotoUrls);
@@ -374,18 +368,16 @@
     });
 
     composerInput?.addEventListener("change", () => {
-      const file = Array.from(composerInput.files || []).find((item) => item.type.startsWith("video/")) || null;
-      if (!file) {
+      const files = Array.from(composerInput.files || []).filter((item) => item.type.startsWith("video/"));
+      if (!files.length) {
         setSelectedVideo(null, "");
         return;
       }
-      setSelectedVideo(file, "\u9078\u3093\u3060\u52d5\u753b\u3092\u767b\u9332\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002");
-    });
-
-    useSelectedButton?.addEventListener("click", () => {
-      const file = Array.from(composerInput?.files || []).find((item) => item.type.startsWith("video/")) || null;
-      if (!file) return setStatus(status, "\u767b\u9332\u3059\u308b\u52d5\u753b\u3092\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002", true);
-      setSelectedVideo(file, "\u9078\u3093\u3060\u52d5\u753b\u3092\u767b\u9332\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002");
+      if (files.length === 1) {
+        setSelectedVideo(files[0], "\u9078\u3093\u3060\u52d5\u753b\u3092\u300c\u767b\u9332\u3059\u308b\u52d5\u753b\u300d\u306b\u30bb\u30c3\u30c8\u3057\u307e\u3057\u305f\u3002");
+        return;
+      }
+      setSelectedVideo(null, "\u8907\u6570\u306e\u52d5\u753b\u3092\u9078\u3093\u3067\u3044\u307e\u3059\u3002\u300c\u52d5\u753b\u3092\u3064\u306a\u3050\u300d\u3092\u62bc\u3059\u3068\u3001\u5b8c\u6210\u3057\u305f\u52d5\u753b\u304c\u300c\u767b\u9332\u3059\u308b\u52d5\u753b\u300d\u306b\u30bb\u30c3\u30c8\u3055\u308c\u307e\u3059\u3002");
     });
 
     resetComposerButton?.addEventListener("click", () => {
@@ -434,7 +426,7 @@
     document.addEventListener("harvest-composed-video-ready", (event) => {
       const file = event.detail?.file;
       if (!(file instanceof File)) return;
-      setSelectedVideo(file, "\u3064\u306a\u3044\u3060\u52d5\u753b\u3092\u767b\u9332\u5bfe\u8c61\u306b\u3057\u307e\u3057\u305f\u3002");
+      setSelectedVideo(file, "\u3064\u306a\u3044\u3060\u52d5\u753b\u3092\u300c\u767b\u9332\u3059\u308b\u52d5\u753b\u300d\u306b\u30bb\u30c3\u30c8\u3057\u307e\u3057\u305f\u3002");
     });
 
     photoInput?.addEventListener("change", () => {
@@ -509,7 +501,7 @@
   function renderVideoPreview(container, source) {
     if (!container) return;
     if (!source) {
-      container.innerHTML = '<p class="note">\u52d5\u753b\u306e\u4e0b\u306b\u8868\u793a\u3055\u308c\u307e\u3059\u3002\u8907\u6570\u679a\u6dfb\u3048\u3089\u308c\u307e\u3059\u3002\u6700\u521d\u306e\u5199\u771f\u306f\u30b5\u30e0\u30cd\u30a4\u30eb\u306b\u3082\u4f7f\u308f\u308c\u307e\u3059\u3002</p>';
+      container.innerHTML = "";
       return;
     }
     const isFile = source instanceof File;
@@ -551,6 +543,7 @@
       const profile = data.farmer;
       const displayTitle = record.title || "今日の軌跡";
       const photos = Array.isArray(record.photoUrls) ? record.photoUrls : [];
+      const likes = Math.max(0, Number(record.likes || 0));
       if (!hasRecordContent(record)) {
         document.title = "まだコンテンツは登録されていません | 軌跡";
         container.innerHTML = `
@@ -568,6 +561,13 @@
         <p class="lead">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(profile?.name || record.farmerId)}</p>
         ${record.videoUrl ? `<div class="video-box"><video src="${escapeHtml(record.videoUrl)}" poster="${escapeHtml(record.videoThumbnailUrl || "")}" controls playsinline preload="metadata" data-public-video></video></div>` : '<p class="note">この日の動画はまだありません。</p>'}
         ${record.note ? `<p>${escapeHtml(record.note)}</p>` : ""}
+        <div class="public-reaction" aria-label="いいね">
+          <button class="like-button" type="button" data-like-button data-like-count="${likes}">
+            <span data-like-label>いいね</span>
+            <strong data-like-count-label>${likes}</strong>
+          </button>
+          <p class="note" data-like-note>この軌跡がよかったら押してください。</p>
+        </div>
         <section class="public-gallery" aria-label="写真ギャラリー">
           <h2>写真ギャラリー</h2>
           <p class="note gallery-note">動画と一緒に残された写真です。クリックすると拡大できます。</p>
@@ -579,12 +579,65 @@
       $("[data-public-video]")?.addEventListener("play", () => window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId }), { once: true });
       $("[data-public-video]")?.addEventListener("ended", () => window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId }));
       $("[data-profile-click]")?.addEventListener("click", () => window.YNHAnalytics?.track("profile_click", { recordId: record.id, farmerId: record.farmerId }));
+      setupLikeButton($("[data-like-button]", container), record);
     } catch (error) {
       container.innerHTML = `
         <p class="eyebrow">QRから見る</p>
         <h1>まだコンテンツは登録されていません</h1>
         <p class="lead">このページに表示する動画や写真は、まだ登録されていません。</p>
       `;
+    }
+  }
+
+  function setupLikeButton(button, record) {
+    if (!button || !record?.id) return;
+    const label = $("[data-like-label]", button);
+    const countLabel = $("[data-like-count-label]", button);
+    const note = $("[data-like-note]");
+    let count = Math.max(0, Number(button.dataset.likeCount || record.likes || 0));
+    let liked = hasLikedRecord(record.id);
+
+    const update = () => {
+      button.classList.toggle("is-liked", liked);
+      button.setAttribute("aria-pressed", liked ? "true" : "false");
+      button.disabled = liked;
+      if (label) label.textContent = liked ? "いいね済み" : "いいね";
+      if (countLabel) countLabel.textContent = String(count);
+      if (note) note.textContent = liked ? "ありがとうございます。" : "この軌跡がよかったら押してください。";
+    };
+
+    update();
+    button.addEventListener("click", () => {
+      if (liked) return;
+      liked = true;
+      count += 1;
+      markRecordLiked(record.id);
+      update();
+      window.YNHAnalytics?.track("like_click", { recordId: record.id, farmerId: record.farmerId });
+    });
+  }
+
+  function hasLikedRecord(recordId) {
+    return getLikedRecords().has(String(recordId || ""));
+  }
+
+  function markRecordLiked(recordId) {
+    const liked = getLikedRecords();
+    liked.add(String(recordId || ""));
+    try {
+      window.localStorage.setItem("ynh_liked_records", JSON.stringify(Array.from(liked).slice(-500)));
+    } catch (error) {
+      // localStorageが使えない環境では、その場の表示だけ更新する。
+    }
+  }
+
+  function getLikedRecords() {
+    try {
+      const raw = window.localStorage.getItem("ynh_liked_records") || "[]";
+      const list = JSON.parse(raw);
+      return new Set(Array.isArray(list) ? list.map(String) : []);
+    } catch (error) {
+      return new Set();
     }
   }
 
@@ -775,11 +828,11 @@
 
   function renderAnalyticsTable(container, rows) {
     if (!rows.length) { container.innerHTML = '<p class="note">解析対象の記録はまだありません。</p>'; return; }
-    container.innerHTML = `<table><thead><tr><th>recordId</th><th>タイトル</th><th>日付</th><th>PV</th><th>動画再生</th><th>動画完了</th><th>プロフィール遷移</th><th>再生率</th><th>完了率</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${escapeHtml(row.id)}</td><td>${escapeHtml(row.title || row.productName || "")}</td><td>${escapeHtml(row.date)}</td><td>${row.pageViews}</td><td>${row.videoPlays}</td><td>${row.videoEnded}</td><td>${row.profileClicks}</td><td>${percent(row.playRate)}</td><td>${percent(row.completionRate)}</td></tr>`).join("")}</tbody></table>`;
+    container.innerHTML = `<table><thead><tr><th>recordId</th><th>タイトル</th><th>日付</th><th>PV</th><th>動画再生</th><th>動画完了</th><th>プロフィール遷移</th><th>いいね</th><th>再生率</th><th>完了率</th></tr></thead><tbody>${rows.map((row) => `<tr><td>${escapeHtml(row.id)}</td><td>${escapeHtml(row.title || row.productName || "")}</td><td>${escapeHtml(row.date)}</td><td>${row.pageViews}</td><td>${row.videoPlays}</td><td>${row.videoEnded}</td><td>${row.profileClicks}</td><td>${row.likeClicks || 0}</td><td>${percent(row.playRate)}</td><td>${percent(row.completionRate)}</td></tr>`).join("")}</tbody></table>`;
   }
 
   function downloadAnalyticsCsv() {
-    const header = ["recordId", "title", "date", "pageViews", "videoPlays", "videoEnded", "profileClicks", "playRate", "completionRate", "profileClickRate"];
+    const header = ["recordId", "title", "date", "pageViews", "videoPlays", "videoEnded", "profileClicks", "likeClicks", "playRate", "completionRate", "profileClickRate"];
     const rows = analyticsRows.map((row) => header.map((key) => JSON.stringify(row[key] ?? "")).join(","));
     const blob = new Blob([[header.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");

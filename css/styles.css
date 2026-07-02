@@ -297,6 +297,10 @@ button.button {
   margin-top: 8px;
 }
 
+.harvest-bottom-actions {
+  justify-content: flex-end;
+}
+
 .button[disabled] {
   cursor: not-allowed;
   opacity: .55;
@@ -814,6 +818,49 @@ td {
 .public-gallery { margin-top: 24px; }
 .public-photo-link { padding: 0; border: 0; background: transparent; cursor: zoom-in; }
 .public-photo-link img { display: block; }
+
+.public-reaction {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 14px;
+  border: 1px solid rgba(32,57,42,.1);
+  border-radius: 18px;
+  background: rgba(255,255,255,.62);
+}
+
+.like-button {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 16px;
+  border: 1px solid rgba(49,95,56,.25);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--leaf);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.like-button strong {
+  min-width: 1.6em;
+  color: var(--earth);
+  text-align: right;
+}
+
+.like-button.is-liked {
+  border-color: var(--leaf);
+  background: var(--leaf-soft);
+}
+
+.like-button:disabled {
+  cursor: default;
+  opacity: 1;
+}
 
 .lightbox {
   position: fixed;

@@ -6,7 +6,10 @@ export async function onRequestGet(context) {
   if (!row) return errorJson("記録が見つかりません。", 404);
 
   const farmer = await context.env.DB.prepare("SELECT * FROM farmers WHERE id = ?").bind(row.farmer_id).first();
-  return json({ ok: true, record: normalizeRecord(row), farmer: normalizeFarmer(farmer) });
+  const likes = await context.env.DB.prepare(
+    "SELECT COUNT(*) AS count FROM analytics_events WHERE record_id = ? AND event_name = 'like_click'"
+  ).bind(id).first();
+  return json({ ok: true, record: normalizeRecord(row, Number(likes?.count || 0)), farmer: normalizeFarmer(farmer) });
 }
 
 export async function onRequestDelete(context) {
@@ -43,7 +46,7 @@ function mediaKeyFromUrl(url) {
 }
 
 
-function normalizeRecord(row) {
+function normalizeRecord(row, likes = 0) {
   return {
     id: row.id,
     farmerId: row.farmer_id,
@@ -55,6 +58,7 @@ function normalizeRecord(row) {
     videoThumbnailUrl: row.video_thumbnail_url || "",
     photoUrls: safeJson(row.photo_urls_json, []),
     profileUrl: row.profile_url || "",
+    likes,
   };
 }
 

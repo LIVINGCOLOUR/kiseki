@@ -39,7 +39,6 @@
       <div class="harvest-composer-list" data-composer-list></div>
       <div class="actions">
         <button class="button primary-button" type="button" data-composer-generate disabled>動画をつなぐ</button>
-        <button class="button" type="button" data-use-selected-video disabled>この動画を登録対象にする</button>
         <button class="button" type="button" data-composer-reset>選び直す</button>
       </div>
       <div class="harvest-composer-progress" data-composer-progress hidden>
@@ -53,7 +52,6 @@
         <video class="harvest-admin-preview-video" controls playsinline data-composer-result-video></video>
         <dl class="harvest-composer-result-meta" data-composer-result-meta></dl>
         <div class="actions">
-          <button class="button primary-button" type="button" data-composer-use>この動画を登録対象にする</button>
           <button class="button" type="button" data-composer-remake>作り直す</button>
           <a class="button" href="#" download="kiseki-composed.mp4" data-composer-download>動画をダウンロード</a>
         </div>
@@ -83,14 +81,12 @@
       </div>
       <div class="field">
         <label>登録する動画</label>
-        <div data-video-preview><p class="note">動画の下に表示されます。複数枚添えられます。最初の写真はサムネイルにも使われます。</p></div>
-        <div class="actions harvest-edit-actions">
-          <button class="button" type="button" data-clear-video hidden>登録済み動画を削除</button>
-        </div>
+        <div data-video-preview></div>
       </div>
       <div class="field">
         <label for="harvestPhotos">写真ギャラリー</label>
         <input id="harvestPhotos" type="file" accept="image/*" multiple data-harvest-photos />
+        <p class="harvest-field-note">1枚目の写真は動画のサムネイルとして使われます。写真を登録しない場合は、動画の最初のシーンがサムネイルになります。</p>
         <div class="harvest-photo-preview-grid" data-photo-preview></div>
         <div class="actions harvest-edit-actions">
           <button class="button" type="button" data-clear-photos hidden>登録済み写真を削除</button>
@@ -109,6 +105,9 @@
           <button class="button" type="button" data-download-qr>QRコード画像をダウンロード</button>
           <a class="button" href="#" target="_blank" rel="noopener" data-open-public>公開ページを開く</a>
         </div>
+      </div>
+      <div class="actions harvest-edit-actions harvest-bottom-actions">
+        <button class="button" type="button" data-clear-video hidden>登録済み動画を削除</button>
       </div>
     </form>
   </main>

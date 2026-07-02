@@ -1,6 +1,6 @@
 import { json, summarizeUserAgent } from "../../_utils.js";
 
-const ALLOWED_EVENTS = new Set(["page_view", "video_play", "video_ended", "profile_click"]);
+const ALLOWED_EVENTS = new Set(["page_view", "video_play", "video_ended", "profile_click", "like_click"]);
 
 export async function onRequestPost(context) {
   let body = {};
@@ -40,4 +40,3 @@ export async function onRequestPost(context) {
 
   return json({ ok: true, stored: true });
 }
-
