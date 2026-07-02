@@ -297,10 +297,6 @@ button.button {
   margin-top: 8px;
 }
 
-.harvest-bottom-actions {
-  justify-content: flex-end;
-}
-
 .button[disabled] {
   cursor: not-allowed;
   opacity: .55;
