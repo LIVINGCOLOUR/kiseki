@@ -576,8 +576,7 @@
         <div class="actions"><a class="button primary-button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}" data-profile-click>プロフィールを見る</a></div>
       `;
       window.YNHAnalytics?.track("page_view", { recordId: record.id, farmerId: record.farmerId });
-      $("[data-public-video]")?.addEventListener("play", () => window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId }), { once: true });
-      $("[data-public-video]")?.addEventListener("ended", () => window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId }));
+      setupPublicVideo($("[data-public-video]"), record);
       $("[data-profile-click]")?.addEventListener("click", () => window.YNHAnalytics?.track("profile_click", { recordId: record.id, farmerId: record.farmerId }));
       setupLikeButton($("[data-like-button]", container), record);
     } catch (error) {
@@ -586,6 +585,62 @@
         <h1>まだコンテンツは登録されていません</h1>
         <p class="lead">このページに表示する動画や写真は、まだ登録されていません。</p>
       `;
+    }
+  }
+
+  function setupPublicVideo(video, record) {
+    if (!video || !record?.id) return;
+    let hasPlayed = false;
+    let hasEnded = false;
+
+    video.addEventListener("play", () => {
+      if (!hasPlayed) {
+        hasPlayed = true;
+        window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId });
+      }
+      enterVideoFullscreen(video);
+    });
+
+    video.addEventListener("ended", () => {
+      if (hasPlayed && !hasEnded) {
+        hasEnded = true;
+        window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId });
+      }
+      exitVideoFullscreen(video);
+    });
+  }
+
+  function enterVideoFullscreen(video) {
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement) return;
+      if (video.requestFullscreen) {
+        const request = video.requestFullscreen();
+        if (request?.catch) request.catch(() => {});
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      }
+    } catch (error) {
+      // Fullscreen may be blocked by the browser if it is not treated as a user action.
+    }
+  }
+
+  function exitVideoFullscreen(video) {
+    try {
+      const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fullscreenElement === video) {
+        if (document.exitFullscreen) {
+          const exit = document.exitFullscreen();
+          if (exit?.catch) exit.catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } else if (video.webkitDisplayingFullscreen && video.webkitExitFullscreen) {
+        video.webkitExitFullscreen();
+      }
+    } catch (error) {
+      // Some mobile browsers handle native video fullscreen outside the standard API.
     }
   }
 
