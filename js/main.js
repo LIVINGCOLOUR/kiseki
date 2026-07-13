@@ -556,24 +556,41 @@
       }
       document.title = `${displayTitle} | 軌跡`;
       container.innerHTML = `
-        <p class="eyebrow">QRから見る</p>
-        <h1>${escapeHtml(displayTitle)}</h1>
-        <p class="lead">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(profile?.name || record.farmerId)}</p>
-        ${record.videoUrl ? `<div class="video-box"><video src="${escapeHtml(record.videoUrl)}" poster="${escapeHtml(record.videoThumbnailUrl || "")}" controls playsinline preload="metadata" data-public-video></video></div>` : '<p class="note">この日の動画はまだありません。</p>'}
-        ${record.note ? `<p>${escapeHtml(record.note)}</p>` : ""}
-        <div class="public-reaction" aria-label="いいね">
-          <button class="like-button" type="button" data-like-button data-like-count="${likes}">
-            <span data-like-label>いいね</span>
-            <strong data-like-count-label>${likes}</strong>
-          </button>
-          <p class="note" data-like-note>この軌跡がよかったら押してください。</p>
+        ${record.videoUrl ? `
+          <section class="public-video-first-view" aria-label="${escapeHtml(displayTitle)}の動画">
+            <video src="${escapeHtml(record.videoUrl)}" poster="${escapeHtml(record.videoThumbnailUrl || "")}" controls playsinline preload="metadata" data-public-video></video>
+            <button class="public-video-start" type="button" data-public-video-start aria-label="動画を再生する">
+              <span class="public-video-guide" aria-hidden="true">↓</span>
+              <span class="public-video-play-icon" aria-hidden="true">▶</span>
+              <strong>農家さんからの動画を見る</strong>
+              <small>タップして再生</small>
+            </button>
+            <div class="public-video-heading">
+              <span>QRから見る 今日の軌跡</span>
+              <b>${escapeHtml(profile?.name || record.farmerId)}</b>
+            </div>
+            <a class="public-video-scroll-cue" href="#public-story" aria-label="動画の下の内容を見る">⌄</a>
+          </section>` : ""}
+        <div class="public-story" id="public-story">
+          <p class="eyebrow">QRから見る</p>
+          <h1>${escapeHtml(displayTitle)}</h1>
+          <p class="lead">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(profile?.name || record.farmerId)}</p>
+          ${record.videoUrl ? "" : '<p class="note">この日の動画はまだありません。</p>'}
+          ${record.note ? `<p>${escapeHtml(record.note)}</p>` : ""}
+          <div class="public-reaction" aria-label="いいね">
+            <button class="like-button" type="button" data-like-button data-like-count="${likes}">
+              <span data-like-label>いいね</span>
+              <strong data-like-count-label>${likes}</strong>
+            </button>
+            <p class="note" data-like-note>この軌跡がよかったら押してください。</p>
+          </div>
+          <section class="public-gallery" aria-label="写真ギャラリー">
+            <h2>写真ギャラリー</h2>
+            <p class="note gallery-note">動画と一緒に残された写真です。タップすると拡大できます。</p>
+            <div class="photo-grid">${photos.length ? photos.map((url, index) => `<button class="public-photo-link" type="button" data-lightbox-url="${escapeHtml(url)}"><img src="${escapeHtml(url)}" alt="写真 ${index + 1}"></button>`).join("") : '<p class="note">この日の写真はまだありません。</p>'}</div>
+          </section>
+          <div class="actions"><a class="button primary-button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}" data-profile-click>プロフィールを見る</a></div>
         </div>
-        <section class="public-gallery" aria-label="写真ギャラリー">
-          <h2>写真ギャラリー</h2>
-          <p class="note gallery-note">動画と一緒に残された写真です。クリックすると拡大できます。</p>
-          <div class="photo-grid">${photos.length ? photos.map((url, index) => `<button class="public-photo-link" type="button" data-lightbox-url="${escapeHtml(url)}"><img src="${escapeHtml(url)}" alt="写真 ${index + 1}"></button>`).join("") : '<p class="note">この日の写真はまだありません。</p>'}</div>
-        </section>
-        <div class="actions"><a class="button primary-button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}" data-profile-click>プロフィールを見る</a></div>
       `;
       window.YNHAnalytics?.track("page_view", { recordId: record.id, farmerId: record.farmerId });
       setupPublicVideo($("[data-public-video]"), record);
@@ -590,10 +607,23 @@
 
   function setupPublicVideo(video, record) {
     if (!video || !record?.id) return;
+    const firstView = video.closest(".public-video-first-view");
+    const startButton = firstView?.querySelector("[data-public-video-start]");
     let hasPlayed = false;
     let hasEnded = false;
 
+    startButton?.addEventListener("click", () => {
+      startButton.classList.add("is-starting");
+      const playback = video.play();
+      enterVideoFullscreen(video);
+      playback?.catch(() => {
+        startButton.classList.remove("is-starting");
+        startButton.querySelector("strong").textContent = "もう一度タップして再生";
+      });
+    });
+
     video.addEventListener("play", () => {
+      firstView?.classList.add("is-playing");
       if (!hasPlayed) {
         hasPlayed = true;
         window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId });
@@ -602,6 +632,8 @@
     });
 
     video.addEventListener("ended", () => {
+      firstView?.classList.remove("is-playing");
+      startButton?.classList.remove("is-starting");
       if (hasPlayed && !hasEnded) {
         hasEnded = true;
         window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId });
