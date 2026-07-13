@@ -16,6 +16,7 @@ function normalizeRecord(row) {
     date: row.date,
     productName: row.product_name || "",
     title: row.title || "",
+    overlayText: row.overlay_text || "",
     note: row.note || "",
     videoUrl: row.video_url || "",
     videoThumbnailUrl: row.video_thumbnail_url || "",

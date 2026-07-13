@@ -76,8 +76,13 @@
         <input id="harvestTitle" name="title" placeholder="例：今朝の仕事場から" />
       </div>
       <div class="field">
-        <label for="harvestNote">ひとこと</label>
-        <textarea id="harvestNote" name="note" maxlength="160" placeholder="今日の様子や、見てほしいところを一言で。"></textarea>
+        <label for="harvestOverlayText">動画に表示する短いひとこと</label>
+        <input id="harvestOverlayText" name="overlayText" maxlength="40" placeholder="例：朝露の残る畑で収穫しました" />
+        <p class="harvest-field-note">動画の再生から約5秒間だけ表示します。40文字以内がおすすめです。</p>
+      </div>
+      <div class="field">
+        <label for="harvestNote">動画の下に表示する説明</label>
+        <textarea id="harvestNote" name="note" maxlength="1200" placeholder="今日の作業や野菜の様子、見てほしいところを詳しく書けます。"></textarea>
       </div>
       <div class="field">
         <label>登録する動画</label>

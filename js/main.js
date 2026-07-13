@@ -57,6 +57,12 @@
     return `${Number(parts[0])}年${Number(parts[1])}月${Number(parts[2])}日`;
   }
 
+  function formatOverlayDate(date) {
+    const value = String(date || "");
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    return match ? `${match[1]}.${match[2]}.${match[3]}` : value;
+  }
+
   function setupLogin() {
     const form = $("[data-login-form]");
     if (!form) return;
@@ -222,7 +228,7 @@
     const form = $("[data-harvest-form]");
     if (!form) return;
     const status = $("[data-harvest-status]");
-    const fields = { date: $('[name="date"]', form), title: $('[name="title"]', form), note: $('[name="note"]', form) };
+    const fields = { date: $('[name="date"]', form), title: $('[name="title"]', form), overlayText: $('[name="overlayText"]', form), note: $('[name="note"]', form) };
     const videoPreview = $("[data-video-preview]");
     const photoInput = $("[data-harvest-photos]");
     const photoPreview = $("[data-photo-preview]");
@@ -289,6 +295,7 @@
       if (photoInput) photoInput.value = "";
       if (clearFields) {
         fields.title.value = "";
+        fields.overlayText.value = "";
         fields.note.value = "";
       }
       renderVideoPreview(videoPreview, null);
@@ -312,6 +319,7 @@
       editingRecord = record;
       fields.date.value = record.date || fields.date.value;
       fields.title.value = record.title || "";
+      fields.overlayText.value = record.overlayText || "";
       fields.note.value = record.note || "";
       selectedVideoFile = null;
       selectedPhotoFiles = [];
@@ -411,6 +419,7 @@
         setFormSaving(true, "削除しています...", "\u524a\u9664\u3057\u3066\u3044\u307e\u3059...");
         await window.YNHAuth.apiJson(`/api/harvest/${encodeURIComponent(editingRecord.id)}`, { method: "DELETE" });
         fields.title.value = "";
+        fields.overlayText.value = "";
         fields.note.value = "";
         clearLoadedRecord(false);
         if (existingSelect) existingSelect.value = "";
@@ -467,7 +476,7 @@
         setFormSaving(true, "記録を保存中...", "\u8a18\u9332\u3092\u4fdd\u5b58\u3057\u3066\u3044\u307e\u3059...");
         const saveData = await window.YNHAuth.apiJson("/api/harvest/save", {
           method: "POST",
-          body: JSON.stringify({ date, productName: "", title: fields.title.value.trim(), note: fields.note.value.trim(), videoUrl: finalVideoUrl, videoThumbnailUrl: finalVideoThumbnailUrl, photoUrls: finalPhotoUrls }),
+          body: JSON.stringify({ date, productName: "", title: fields.title.value.trim(), overlayText: fields.overlayText.value.trim(), note: fields.note.value.trim(), videoUrl: finalVideoUrl, videoThumbnailUrl: finalVideoThumbnailUrl, photoUrls: finalPhotoUrls }),
         });
         lastSavedRecord = saveData.record;
         loadRecordForEdit(saveData.record, false);
@@ -561,6 +570,10 @@
           </header>
           <section class="public-video-first-view" aria-label="${escapeHtml(displayTitle)}の動画">
             <video src="${escapeHtml(record.videoUrl)}" poster="${escapeHtml(record.videoThumbnailUrl || "")}" controls playsinline preload="metadata" data-public-video></video>
+            <div class="public-video-story-overlay" data-public-video-overlay aria-hidden="true">
+              <time datetime="${escapeHtml(record.date)}">${escapeHtml(formatOverlayDate(record.date))}</time>
+              ${record.overlayText ? `<p>${escapeHtml(record.overlayText)}</p>` : ""}
+            </div>
             <button class="public-video-start" type="button" data-public-video-start aria-label="動画を再生する">
               <span class="public-video-guide" aria-hidden="true">↓</span>
               <span class="public-video-play-icon" aria-hidden="true">▶</span>
@@ -636,14 +649,15 @@
     const firstView = video.closest(".public-video-first-view");
     const startButton = firstView?.querySelector("[data-public-video-start]");
     const afterGuide = firstView?.querySelector("[data-public-video-after]");
+    const storyOverlay = firstView?.querySelector("[data-public-video-overlay]");
     const story = document.querySelector("#public-story");
     let hasPlayed = false;
     let hasEnded = false;
 
     startButton?.addEventListener("click", () => {
       startButton.classList.add("is-starting");
+      enterVideoFullscreen(firstView);
       const playback = video.play();
-      enterVideoFullscreen(video);
       playback?.catch(() => {
         startButton.classList.remove("is-starting");
         startButton.querySelector("strong").textContent = "もう一度タップして再生";
@@ -653,22 +667,26 @@
     video.addEventListener("play", () => {
       firstView?.classList.add("is-playing");
       firstView?.classList.remove("is-ended");
+      updateVideoStoryOverlay(video, storyOverlay);
       if (!hasPlayed) {
         hasPlayed = true;
         window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId });
       }
-      enterVideoFullscreen(video);
     });
+
+    video.addEventListener("timeupdate", () => updateVideoStoryOverlay(video, storyOverlay));
+    video.addEventListener("pause", () => storyOverlay?.classList.remove("is-visible"));
 
     video.addEventListener("ended", () => {
       firstView?.classList.remove("is-playing");
       firstView?.classList.add("is-ended");
+      storyOverlay?.classList.remove("is-visible");
       startButton?.classList.remove("is-starting");
       if (hasPlayed && !hasEnded) {
         hasEnded = true;
         window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId });
       }
-      exitVideoFullscreen(video);
+      exitVideoFullscreen();
     });
 
     afterGuide?.addEventListener("click", () => {
@@ -676,34 +694,34 @@
     });
   }
 
-  function enterVideoFullscreen(video) {
+  function updateVideoStoryOverlay(video, overlay) {
+    if (!video || !overlay) return;
+    overlay.classList.toggle("is-visible", !video.paused && !video.ended && video.currentTime < 5);
+  }
+
+  function enterVideoFullscreen(target) {
     try {
       if (document.fullscreenElement || document.webkitFullscreenElement) return;
-      if (video.requestFullscreen) {
-        const request = video.requestFullscreen();
+      if (target?.requestFullscreen) {
+        const request = target.requestFullscreen();
         if (request?.catch) request.catch(() => {});
-      } else if (video.webkitRequestFullscreen) {
-        video.webkitRequestFullscreen();
-      } else if (video.webkitEnterFullscreen) {
-        video.webkitEnterFullscreen();
+      } else if (target?.webkitRequestFullscreen) {
+        target.webkitRequestFullscreen();
       }
     } catch (error) {
       // Fullscreen may be blocked by the browser if it is not treated as a user action.
     }
   }
 
-  function exitVideoFullscreen(video) {
+  function exitVideoFullscreen() {
     try {
-      const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
-      if (fullscreenElement === video) {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) {
           const exit = document.exitFullscreen();
           if (exit?.catch) exit.catch(() => {});
         } else if (document.webkitExitFullscreen) {
           document.webkitExitFullscreen();
         }
-      } else if (video.webkitDisplayingFullscreen && video.webkitExitFullscreen) {
-        video.webkitExitFullscreen();
       }
     } catch (error) {
       // Some mobile browsers handle native video fullscreen outside the standard API.
