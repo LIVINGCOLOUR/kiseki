@@ -905,6 +905,21 @@ td {
   text-shadow: 0 2px 8px rgba(0,0,0,.9);
 }
 
+.public-video-first-view video::cue(.kiseki-fade-soft) {
+  background: rgba(16,25,19,.08);
+  color: rgba(255,255,255,.3);
+}
+
+.public-video-first-view video::cue(.kiseki-fade-medium) {
+  background: rgba(16,25,19,.18);
+  color: rgba(255,255,255,.65);
+}
+
+.public-video-first-view video::cue(.kiseki-fade-full) {
+  background: rgba(16,25,19,.28);
+  color: white;
+}
+
 .public-video-story-overlay.is-visible { opacity: 1; }
 
 .public-video-story-overlay time {

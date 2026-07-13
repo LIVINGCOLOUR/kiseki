@@ -695,7 +695,8 @@
         hasEnded = true;
         window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId });
       }
-      exitVideoFullscreen();
+      setNativeOverlayTrack(nativeOverlayTrack, false);
+      exitVideoFullscreen(video);
     });
 
     afterGuide?.addEventListener("click", () => {
@@ -712,24 +713,34 @@
     if (!video?.addTextTrack || !window.VTTCue) return null;
     const track = video.addTextTrack("captions", "軌跡", "ja");
     track.mode = "hidden";
-    const dateCue = new VTTCue(0.15, 4.85, formatOverlayDate(record.date));
-    dateCue.snapToLines = false;
-    dateCue.line = 6;
-    dateCue.position = 5;
-    dateCue.size = 40;
-    dateCue.align = "start";
-    try { dateCue.positionAlign = "line-left"; } catch (error) {}
-    track.addCue(dateCue);
+    addNativeOverlayCueSequence(track, formatOverlayDate(record.date), { line: 6, position: 5, size: 40, align: "start", positionAlign: "line-left" });
     if (record.overlayText) {
-      const textCue = new VTTCue(0.25, 4.75, record.overlayText);
-      textCue.snapToLines = false;
-      textCue.line = 18;
-      textCue.position = 50;
-      textCue.size = 88;
-      textCue.align = "center";
-      track.addCue(textCue);
+      addNativeOverlayCueSequence(track, record.overlayText, { line: 18, position: 50, size: 88, align: "center" });
     }
     return track;
+  }
+
+  function addNativeOverlayCueSequence(track, text, layout) {
+    const safeText = String(text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const phases = [
+      [0.15, 0.75, "kiseki-fade-soft"],
+      [0.75, 1.35, "kiseki-fade-medium"],
+      [1.35, 3.65, "kiseki-fade-full"],
+      [3.65, 4.25, "kiseki-fade-medium"],
+      [4.25, 4.85, "kiseki-fade-soft"],
+    ];
+    phases.forEach(([start, end, className]) => {
+      const cue = new VTTCue(start, end, `<c.${className}>${safeText}</c>`);
+      cue.snapToLines = false;
+      cue.line = layout.line;
+      cue.position = layout.position;
+      cue.size = layout.size;
+      cue.align = layout.align;
+      if (layout.positionAlign) {
+        try { cue.positionAlign = layout.positionAlign; } catch (error) {}
+      }
+      track.addCue(cue);
+    });
   }
 
   function setNativeOverlayTrack(track, visible) {
@@ -755,7 +766,7 @@
     }
   }
 
-  function exitVideoFullscreen() {
+  function exitVideoFullscreen(video) {
     try {
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) {
@@ -764,6 +775,8 @@
         } else if (document.webkitExitFullscreen) {
           document.webkitExitFullscreen();
         }
+      } else if (video?.webkitDisplayingFullscreen && video.webkitExitFullscreen) {
+        video.webkitExitFullscreen();
       }
     } catch (error) {
       // Some mobile browsers handle native video fullscreen outside the standard API.
