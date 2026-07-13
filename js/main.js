@@ -567,6 +567,11 @@
               <strong>農家さんからの動画を見る</strong>
               <small>タップして再生</small>
             </button>
+            <button class="public-video-after-guide" type="button" data-public-video-after aria-label="写真とプロフィールを見る">
+              <small>動画の下に続きがあります</small>
+              <strong>写真とプロフィールを見る</strong>
+              <span aria-hidden="true">↓</span>
+            </button>
             <a class="public-video-scroll-cue" href="#public-story" aria-label="動画の下の内容を見る">⌄</a>
           </section>` : ""}
         <div class="public-story" id="public-story">
@@ -630,6 +635,8 @@
     if (!video || !record?.id) return;
     const firstView = video.closest(".public-video-first-view");
     const startButton = firstView?.querySelector("[data-public-video-start]");
+    const afterGuide = firstView?.querySelector("[data-public-video-after]");
+    const story = document.querySelector("#public-story");
     let hasPlayed = false;
     let hasEnded = false;
 
@@ -645,6 +652,7 @@
 
     video.addEventListener("play", () => {
       firstView?.classList.add("is-playing");
+      firstView?.classList.remove("is-ended");
       if (!hasPlayed) {
         hasPlayed = true;
         window.YNHAnalytics?.track("video_play", { recordId: record.id, farmerId: record.farmerId });
@@ -654,12 +662,17 @@
 
     video.addEventListener("ended", () => {
       firstView?.classList.remove("is-playing");
+      firstView?.classList.add("is-ended");
       startButton?.classList.remove("is-starting");
       if (hasPlayed && !hasEnded) {
         hasEnded = true;
         window.YNHAnalytics?.track("video_ended", { recordId: record.id, farmerId: record.farmerId });
       }
       exitVideoFullscreen(video);
+    });
+
+    afterGuide?.addEventListener("click", () => {
+      story?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
