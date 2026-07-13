@@ -547,7 +547,6 @@
       if (!hasRecordContent(record)) {
         document.title = "まだコンテンツは登録されていません | 軌跡";
         container.innerHTML = `
-          <p class="eyebrow">QRから見る</p>
           <h1>まだコンテンツは登録されていません</h1>
           <p class="lead">このページに表示する動画や写真は、まだ登録されていません。</p>
           <div class="actions"><a class="button primary-button" href="farmer.html?id=${encodeURIComponent(record.farmerId)}">プロフィールを見る</a></div>
@@ -557,6 +556,9 @@
       document.title = `${displayTitle} | 軌跡`;
       container.innerHTML = `
         ${record.videoUrl ? `
+          <header class="public-video-title-bar">
+            <h1 data-auto-fit-title title="${escapeHtml(displayTitle)}">${escapeHtml(displayTitle)}</h1>
+          </header>
           <section class="public-video-first-view" aria-label="${escapeHtml(displayTitle)}の動画">
             <video src="${escapeHtml(record.videoUrl)}" poster="${escapeHtml(record.videoThumbnailUrl || "")}" controls playsinline preload="metadata" data-public-video></video>
             <button class="public-video-start" type="button" data-public-video-start aria-label="動画を再生する">
@@ -565,18 +567,15 @@
               <strong>農家さんからの動画を見る</strong>
               <small>タップして再生</small>
             </button>
-            <div class="public-video-heading">
-              <span>QRから見る 今日の軌跡</span>
-              <b>${escapeHtml(profile?.name || record.farmerId)}</b>
-            </div>
             <a class="public-video-scroll-cue" href="#public-story" aria-label="動画の下の内容を見る">⌄</a>
           </section>` : ""}
         <div class="public-story" id="public-story">
-          <p class="eyebrow">QRから見る</p>
-          <h1>${escapeHtml(displayTitle)}</h1>
-          <p class="lead">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(profile?.name || record.farmerId)}</p>
-          ${record.videoUrl ? "" : '<p class="note">この日の動画はまだありません。</p>'}
-          ${record.note ? `<p>${escapeHtml(record.note)}</p>` : ""}
+          ${record.videoUrl ? "" : `<h1 data-auto-fit-title title="${escapeHtml(displayTitle)}">${escapeHtml(displayTitle)}</h1><p class="note">この日の動画はまだありません。</p>`}
+          <p class="public-story-meta">${escapeHtml(formatDateJa(record.date))} / ${escapeHtml(profile?.name || record.farmerId)}</p>
+          <section class="public-story-note" aria-labelledby="public-story-note-title">
+            <h2 id="public-story-note-title">ひとこと</h2>
+            <p>${record.note ? escapeHtml(record.note) : "この日のひとことはまだありません。"}</p>
+          </section>
           <div class="public-reaction" aria-label="いいね">
             <button class="like-button" type="button" data-like-button data-like-count="${likes}">
               <span data-like-label>いいね</span>
@@ -593,16 +592,38 @@
         </div>
       `;
       window.YNHAnalytics?.track("page_view", { recordId: record.id, farmerId: record.farmerId });
+      setupAutoFitTitle($("[data-auto-fit-title]", container));
       setupPublicVideo($("[data-public-video]"), record);
       $("[data-profile-click]")?.addEventListener("click", () => window.YNHAnalytics?.track("profile_click", { recordId: record.id, farmerId: record.farmerId }));
       setupLikeButton($("[data-like-button]", container), record);
     } catch (error) {
       container.innerHTML = `
-        <p class="eyebrow">QRから見る</p>
         <h1>まだコンテンツは登録されていません</h1>
         <p class="lead">このページに表示する動画や写真は、まだ登録されていません。</p>
       `;
     }
+  }
+
+  function setupAutoFitTitle(title) {
+    if (!title) return;
+    const fit = () => {
+      const maxSize = window.matchMedia("(max-width: 760px)").matches ? 42 : 54;
+      const minSize = 15;
+      let low = minSize;
+      let high = maxSize;
+      title.style.fontSize = `${maxSize}px`;
+      for (let i = 0; i < 8; i += 1) {
+        const size = (low + high) / 2;
+        title.style.fontSize = `${size}px`;
+        if (title.scrollWidth <= title.clientWidth) low = size;
+        else high = size;
+      }
+      title.style.fontSize = `${Math.floor(low)}px`;
+    };
+    fit();
+    if (document.fonts?.ready) document.fonts.ready.then(fit).catch(() => {});
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(title.parentElement || title);
+    else window.addEventListener("resize", fit, { passive: true });
   }
 
   function setupPublicVideo(video, record) {
