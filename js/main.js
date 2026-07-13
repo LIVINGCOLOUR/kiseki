@@ -651,13 +651,14 @@
     const afterGuide = firstView?.querySelector("[data-public-video-after]");
     const storyOverlay = firstView?.querySelector("[data-public-video-overlay]");
     const story = document.querySelector("#public-story");
+    const nativeOverlayTrack = setupNativeVideoOverlay(video, record);
     let hasPlayed = false;
     let hasEnded = false;
 
     startButton?.addEventListener("click", () => {
       startButton.classList.add("is-starting");
-      enterVideoFullscreen(firstView);
       const playback = video.play();
+      enterVideoFullscreen(video, nativeOverlayTrack);
       playback?.catch(() => {
         startButton.classList.remove("is-starting");
         startButton.querySelector("strong").textContent = "もう一度タップして再生";
@@ -676,6 +677,14 @@
 
     video.addEventListener("timeupdate", () => updateVideoStoryOverlay(video, storyOverlay));
     video.addEventListener("pause", () => storyOverlay?.classList.remove("is-visible"));
+    video.addEventListener("webkitbeginfullscreen", () => setNativeOverlayTrack(nativeOverlayTrack, true));
+    video.addEventListener("webkitendfullscreen", () => setNativeOverlayTrack(nativeOverlayTrack, false));
+    document.addEventListener("fullscreenchange", () => {
+      setNativeOverlayTrack(nativeOverlayTrack, document.fullscreenElement === video);
+    });
+    document.addEventListener("webkitfullscreenchange", () => {
+      setNativeOverlayTrack(nativeOverlayTrack, document.webkitFullscreenElement === video);
+    });
 
     video.addEventListener("ended", () => {
       firstView?.classList.remove("is-playing");
@@ -696,17 +705,50 @@
 
   function updateVideoStoryOverlay(video, overlay) {
     if (!video || !overlay) return;
-    overlay.classList.toggle("is-visible", !video.paused && !video.ended && video.currentTime < 5);
+    overlay.classList.toggle("is-visible", !video.paused && !video.ended && video.currentTime < 4);
   }
 
-  function enterVideoFullscreen(target) {
+  function setupNativeVideoOverlay(video, record) {
+    if (!video?.addTextTrack || !window.VTTCue) return null;
+    const track = video.addTextTrack("captions", "軌跡", "ja");
+    track.mode = "hidden";
+    const dateCue = new VTTCue(0.15, 4.85, formatOverlayDate(record.date));
+    dateCue.snapToLines = false;
+    dateCue.line = 6;
+    dateCue.position = 5;
+    dateCue.size = 40;
+    dateCue.align = "start";
+    try { dateCue.positionAlign = "line-left"; } catch (error) {}
+    track.addCue(dateCue);
+    if (record.overlayText) {
+      const textCue = new VTTCue(0.25, 4.75, record.overlayText);
+      textCue.snapToLines = false;
+      textCue.line = 18;
+      textCue.position = 50;
+      textCue.size = 88;
+      textCue.align = "center";
+      track.addCue(textCue);
+    }
+    return track;
+  }
+
+  function setNativeOverlayTrack(track, visible) {
+    if (track) track.mode = visible ? "showing" : "hidden";
+  }
+
+  function enterVideoFullscreen(video, nativeOverlayTrack) {
     try {
       if (document.fullscreenElement || document.webkitFullscreenElement) return;
-      if (target?.requestFullscreen) {
-        const request = target.requestFullscreen();
-        if (request?.catch) request.catch(() => {});
-      } else if (target?.webkitRequestFullscreen) {
-        target.webkitRequestFullscreen();
+      setNativeOverlayTrack(nativeOverlayTrack, true);
+      if (video?.requestFullscreen) {
+        const request = video.requestFullscreen();
+        if (request?.catch) request.catch(() => setNativeOverlayTrack(nativeOverlayTrack, false));
+      } else if (video?.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+      } else if (video?.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      } else {
+        setNativeOverlayTrack(nativeOverlayTrack, false);
       }
     } catch (error) {
       // Fullscreen may be blocked by the browser if it is not treated as a user action.
