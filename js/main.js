@@ -225,6 +225,13 @@
   }
 
   function setupHarvestAdmin() {
+    const modeChoice = $("[data-harvest-mode-choice]");
+    const normalModeTargets = document.querySelectorAll("[data-normal-mode]");
+    $("[data-select-normal-mode]")?.addEventListener("click", () => {
+      modeChoice?.setAttribute("hidden", "hidden");
+      normalModeTargets.forEach((target) => target.removeAttribute("hidden"));
+      document.querySelector("[data-harvest-composer]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     const form = $("[data-harvest-form]");
     if (!form) return;
     const status = $("[data-harvest-status]");

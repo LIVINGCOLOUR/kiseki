@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>イベント作成 | 軌跡</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-require-auth data-event-admin>
+  <header class="site-header"><div class="app-shell header-inner"><a class="brand" href="dashboard.html"><span class="brand-mark">軌</span><span>軌跡<small>イベント登録</small></span></a><nav class="main-nav"><a href="dashboard.html">ホーム</a><a href="harvest-admin.html">軌跡を登録</a><button type="button" data-logout>ログアウト</button></nav></div></header>
+  <main class="app-shell">
+    <section class="section form-card"><p class="eyebrow">あなたも軌跡</p><h1>イベントを準備する</h1><p class="lead">共通動画を一度登録し、お客様ごとのQRカードをまとめて発行します。</p></section>
+    <form class="section form-card" data-event-create-form>
+      <div class="field"><label for="eventName">イベント名</label><input id="eventName" required placeholder="例：あおぞらマルシェ販売" /></div>
+      <div class="field"><label for="eventDate">開催日</label><input id="eventDate" type="date" required /></div>
+      <div class="field"><label for="eventTitle">QR先のタイトル</label><input id="eventTitle" placeholder="例：あなたに届くまでの、ひとつの物語。" /></div>
+      <div class="field"><label for="eventOverlayText">動画中に表示する短いひとこと</label><input id="eventOverlayText" maxlength="40" placeholder="例：昨日、この場所で焼きました。" /><p class="harvest-field-note">動画の再生開始から約5秒間、画面上に表示します。</p></div>
+      <div class="field"><label for="eventCount">QRカード枚数</label><input id="eventCount" type="number" min="1" max="100" value="30" required /></div>
+      <button class="button primary-button" type="submit">イベントとQRカードを発行</button>
+      <p class="status" data-event-status role="status"></p>
+      <div class="actions" data-event-resume-actions hidden>
+        <a class="button primary-button" href="#" data-event-resume-link>撮影を再開</a>
+        <a class="button" href="#" data-event-workspace-link>動画・QRを確認</a>
+      </div>
+      <div class="field"><label for="eventThumbnail">サムネイル画像（1枚）</label><input id="eventThumbnail" type="file" accept="image/*" data-event-thumbnail /><p class="harvest-field-note">動画再生前の待機画面に表示します。</p><img class="event-thumbnail-preview" data-event-thumbnail-preview hidden alt="サムネイルプレビュー" /></div>
+    </form>
+    <section class="section form-card" data-event-workspace hidden>
+      <p class="eyebrow">共通動画</p><h2 data-event-name></h2>
+      <p class="note">金曜日に撮影した調理動画を登録してください。登録後、土曜日の手渡し撮影へ進めます。</p>
+      <section class="event-common-composer" data-harvest-composer data-event-common-composer>
+        <h3>共通動画を選ぶ</h3>
+        <div class="field"><label for="commonVideo">動画を1〜5本選ぶ</label><input id="commonVideo" type="file" accept="video/*" multiple data-composer-input /><p class="harvest-field-note">選んだ順につなぎます。金曜日の調理工程をまとめてください。</p></div>
+        <div class="harvest-composer-summary" data-composer-summary>動画はまだ選択されていません。</div>
+        <div class="harvest-composer-warnings" data-composer-warnings hidden></div>
+        <div class="harvest-composer-list" data-composer-list></div>
+        <div class="actions"><button class="button primary-button" type="button" data-composer-generate disabled>動画をつなぐ</button><button class="button" type="button" data-composer-reset>選び直す</button></div>
+        <div class="harvest-composer-progress" data-composer-progress hidden><p data-composer-phase>動画処理を準備中</p><progress value="0" max="100" data-composer-progress-bar></progress><p class="harvest-field-note"><span data-composer-progress-percent>0%</span> / <span data-composer-elapsed>0秒</span><br />処理中は画面を閉じないでください。</p><button class="button" type="button" data-composer-cancel>処理をキャンセル</button></div>
+        <div class="harvest-composer-result" data-composer-result hidden><h3>共通動画プレビュー</h3><video class="harvest-admin-preview-video" controls playsinline data-composer-result-video></video><dl class="harvest-composer-result-meta" data-composer-result-meta></dl><a class="button" href="#" download="kiseki-event-common.mp4" data-composer-download>結合動画を保存</a></div>
+      </section>
+      <button class="button" type="button" data-upload-common>共通動画をアップロード</button>
+      <p class="status" data-common-status role="status"></p>
+      <div class="actions"><a class="button primary-button" href="#" data-handoff-link>手渡し撮影画面へ</a><button class="button" type="button" data-print-cards>QRカードを印刷</button></div>
+      <div class="event-qr-grid" data-event-qr-grid></div>
+    </section>
+    <section class="section form-card" data-event-history>
+      <p class="eyebrow">履歴</p><h2>過去のイベント</h2>
+      <div data-event-history-list><p class="note">読み込み中です。</p></div>
+    </section>
+  </main>
+  <script src="js/qrcode.js"></script><script src="js/auth.js"></script><script src="js/video-composer.js"></script><script src="js/event.js"></script>
+</body>
+</html>

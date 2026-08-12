@@ -27,7 +27,17 @@
       <p class="lead">複数動画を選んだ順につなぎます。最大5本。登録処理に一定の時間がかかります。</p>
     </section>
 
-    <section class="section form-card" data-harvest-composer>
+    <section class="section form-card mode-choice-card" data-harvest-mode-choice>
+      <p class="eyebrow">登録方法を選ぶ</p>
+      <h2>どちらの動画を登録しますか？</h2>
+      <p class="lead">通常の記録はそのまま登録し、イベントでは共通動画とお客様ごとのQRを準備できます。</p>
+      <div class="mode-choice-grid">
+        <button class="mode-choice" type="button" data-select-normal-mode><strong>通常モード</strong><span>その日の動画・写真を登録する</span></button>
+        <a class="mode-choice" href="event-admin.html"><strong>イベントモード</strong><span>イベント動画と顧客別QRを登録する</span></a>
+      </div>
+    </section>
+
+    <section class="section form-card" data-harvest-composer data-normal-mode hidden>
       <h2>動画を選ぶ</h2>
       <div class="field">
         <label for="clipVideos">動画を1〜5本選ぶ</label>
@@ -58,7 +68,7 @@
       </div>
     </section>
 
-    <form class="section form-card harvest-admin-form" data-harvest-form>
+    <form class="section form-card harvest-admin-form" data-harvest-form data-normal-mode hidden>
       <p class="eyebrow">公開内容</p>
       <div class="field">
         <label for="harvestDate">投稿日</label>

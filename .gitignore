@@ -14,3 +14,7 @@ node_modules/
 
 # Local server
 *.pid
+
+# PR video production working files (raw media, not used by the site)
+assets/promo/
+assets/images/hero-scenes/

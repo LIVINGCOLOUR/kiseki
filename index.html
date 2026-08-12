@@ -1,37 +1,282 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="lp-root">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>軌跡</title>
-  <meta name="description" content="商品や作品に添えたQRコードから、作り手がその日に残した動画と写真を見ることができます。" />
+  <title>軌跡 | その一品の物語りを届ける</title>
+  <meta name="description" content="その商品が作られる過程からお客様へ届く瞬間までを、QRコードから動画で届けます。農産物、焼き菓子、料理、工芸品など、ひと品の背景を受け取る体験につなげます。" />
+  <meta name="theme-color" content="#fffdf7" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<body class="lp-page">
+  <a class="lp-skip" href="#lp-main">本文へスキップ</a>
+
   <header class="site-header">
-    <div class="app-shell header-inner">
-      <a class="brand" href="index.html"><span class="brand-mark">軌</span><span>軌跡</span></a>
+    <div class="lp-header-inner">
+      <a class="brand" href="index.html" aria-label="軌跡 トップページ">
+        <span class="brand-mark" aria-hidden="true">軌</span>
+        <span>軌跡</span>
+      </a>
+      <nav class="lp-nav" aria-label="ページ内リンク">
+        <a href="#how-it-works">漫画で見る</a>
+        <a href="#use-cases">活用例</a>
+        <a href="#event-mode">イベントモード</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="lp-button lp-button-primary lp-header-cta" href="login.html">ログイン</a>
     </div>
   </header>
-  <main class="app-shell">
-    <section class="hero">
-      <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
-        <source src="assets/videos/hero-kiseki.mp4" type="video/mp4" />
+
+  <main class="lp-main" id="lp-main" tabindex="-1">
+    <section class="lp-hero" aria-labelledby="lp-hero-title">
+      <video
+        class="lp-hero-video"
+        id="lp-hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster="assets/videos/hero-kiseki-poster.jpg"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <source src="assets/videos/hero-kiseki-mixed-v2.mp4" type="video/mp4" />
       </video>
-      <div class="hero-card">
-        <h1>ものの軌跡をたどる</h1>
-        <p class="lead">商品や作品に添えた<span class="no-break">QRコードから</span>、作り手がその日に残した動画と写真を見ることができます。</p>
-        <div class="actions">
-          <a class="button primary-button" href="login.html">作り手としてログイン</a>
+      <div class="lp-hero-heading">
+        <h1 class="lp-hero-title" id="lp-hero-title">その一品の<br class="lp-hero-mobile-break" /><span class="lp-hero-emphasis">物語り</span>を届ける</h1>
+      </div>
+      <div class="lp-hero-inner">
+        <p class="lp-hero-lead">その商品が作られる過程からお客様へ届く瞬間までを、QRコードから動画で届けます。</p>
+        <div class="lp-actions">
+          <button class="lp-button lp-button-light" type="button" disabled aria-label="受け取る体験を見てみる（現在利用できません）">
+            受け取る体験を見てみる
+          </button>
         </div>
       </div>
     </section>
-    <section class="section grid-3">
-      <article class="card"><h2>様子を残す</h2><p>作り手がスマホで撮った短い動画や写真を、商品・作品・投稿日ごとの記録として残します。</p></article>
-      <article class="card"><h2>動画を整える</h2><p>複数の動画を30秒以内でつなぎ、見やすい形に整えます。</p></article>
-      <article class="card"><h2>軌跡を見る</h2><p>QRコードから、消費者や来場者はログインなしで動画・写真ギャラリー・作り手のプロフィールへ進めます。</p></article>
+
+    <section class="lp-section lp-manga-section" id="how-it-works" aria-labelledby="how-it-works-title">
+      <div class="lp-shell">
+        <div class="lp-section-head lp-center">
+          <p class="lp-eyebrow">基本機能・通常モード</p>
+          <h2 class="lp-h2" id="how-it-works-title">商品にQRコードを添えて、<br />作る背景を届ける。</h2>
+          <p class="lp-copy">まずは通常モード。撮影から受け取りまでを、4つの場面で紹介します。</p>
+        </div>
+
+        <ol class="lp-manga-grid lp-manga-grid-normal" aria-label="通常モードの利用イメージ">
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="22 184 340 252" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">01</span>
+              <h3>つくる工程を撮る</h3>
+              <p>商品ができるまでの工程を、スマートフォンで複数の短い動画として残し、ひとつの動画につなぎます。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="400 580 340 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">02</span>
+              <h3>QRコードを添える</h3>
+              <p>動画と説明を見られるQRコードを発行します。そのQRコードを商品やメニューに添えます。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="778 580 340 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">03</span>
+              <h3>受け取った人が読み取る</h3>
+              <p>アプリやログインなしで、すぐに動画を再生できます。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="1160 580 350 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">04</span>
+              <h3>背景まで味わう</h3>
+              <p>動画の後は写真や作り手の言葉へ。商品体験が深まります。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="lp-manga-summary" aria-label="通常モードで掲載できる内容">
+          <strong>通常モードで届けられるもの</strong>
+          <ul>
+            <li>複数の動画と写真</li>
+            <li>日付と短いひとこと</li>
+            <li>長い説明とギャラリー</li>
+            <li>作り手のプロフィール</li>
+          </ul>
+        </div>
+      </div>
     </section>
+
+    <section class="lp-section" id="use-cases" aria-labelledby="use-cases-title">
+      <div class="lp-shell">
+        <div class="lp-section-head">
+          <p class="lp-eyebrow">活用例</p>
+          <h2 class="lp-h2" id="use-cases-title">背景が、おいしさや愛着の一部になる場所へ。</h2>
+          <p class="lp-copy">食べものから手仕事まで、完成品だけでは伝わりきらない時間を持つ商品に活用できます。</p>
+        </div>
+        <div class="lp-scene-grid">
+          <article class="lp-scene">
+            <span class="lp-scene-icon" aria-hidden="true">畑</span>
+            <h3>産直・野菜ボックス</h3>
+            <p>畑の様子と育てた人の言葉を、野菜と一緒に。</p>
+          </article>
+          <article class="lp-scene">
+            <span class="lp-scene-icon" aria-hidden="true">焼</span>
+            <h3>焼き菓子・商品カード</h3>
+            <p>仕込みや焼き上がりの背景を、焼き菓子と一緒に。</p>
+          </article>
+          <article class="lp-scene">
+            <span class="lp-scene-icon" aria-hidden="true">食</span>
+            <h3>レストラン</h3>
+            <p>食材と生産者の背景を、料理と一緒に。</p>
+          </article>
+          <article class="lp-scene">
+            <span class="lp-scene-icon" aria-hidden="true">手</span>
+            <h3>工芸品・ギフト</h3>
+            <p>素材から完成までを、贈りものの記憶に。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section lp-section-tint lp-event-manga-section" id="event-mode" aria-labelledby="event-mode-title">
+      <div class="lp-shell">
+        <div class="lp-section-head lp-center">
+          <p class="lp-eyebrow">付属機能・イベントモード</p>
+          <h2 class="lp-h2" id="event-mode-title">販売イベントでは、<br />お客様ごとの物語も。</h2>
+          <p class="lp-copy">通常モードの動画を土台に、商品を渡した瞬間を加え、一人ひとり異なる動画として届けます。</p>
+        </div>
+
+        <ol class="lp-manga-grid lp-manga-grid-event" aria-label="イベントモードの利用イメージ">
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="778 184 340 252" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">01</span>
+              <h3>共通動画を準備する</h3>
+              <p>商品を作る工程など、すべてのお客様に共通して届ける動画を準備します。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="400 580 340 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">02</span>
+              <h3>個別QRコードを用意する</h3>
+              <p>お客様ごとに異なる動画を再生するための、個別のQRコードが発行されます。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="22 580 340 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">03</span>
+              <h3>渡す瞬間を撮影する</h3>
+              <p>商品を手渡す場面を、お客様ごとの短い動画として撮影します。このとき、個別のQRコードを商品に添えます。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="778 580 340 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">04</span>
+              <h3>後からQRコードを読む</h3>
+              <p>受け取った人は、好きな時間にスマートフォンで読み取ります。</p>
+            </div>
+          </li>
+          <li class="lp-manga-card">
+            <svg class="lp-manga-art" viewBox="1160 580 350 268" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              <image href="assets/images/kiseki-manga-source.png" width="1536" height="1024" />
+            </svg>
+            <div class="lp-manga-copy">
+              <span class="lp-manga-step">05</span>
+              <h3>一人ひとりの物語になる</h3>
+              <p>共通動画に手渡しの場面がつながり、その人だけの動画として見ることができます。</p>
+            </div>
+          </li>
+        </ol>
+
+        <p class="lp-manga-note">※ 渡す瞬間の自動切り取り・自動結合は開発予定です。</p>
+      </div>
+    </section>
+
+    <section class="lp-section lp-section-tint" id="faq" aria-labelledby="faq-title">
+      <div class="lp-shell">
+        <div class="lp-section-head lp-center">
+          <p class="lp-eyebrow">FAQ</p>
+          <h2 class="lp-h2" id="faq-title">よくある質問</h2>
+        </div>
+        <div class="lp-faq">
+          <details>
+            <summary><h3>動画を見る人に、アプリやログインは必要ですか？</h3></summary>
+            <div class="lp-faq-a">
+              <p>必要ありません。スマートフォンでQRコードを読み、ブラウザでそのまま動画や写真、説明、プロフィールを見られます。</p>
+            </div>
+          </details>
+          <details>
+            <summary><h3>通常モードでは何を登録できますか？</h3></summary>
+            <div class="lp-faq-a">
+              <p>複数の動画、写真、日付、短いひとこと、長い説明を登録できます。ギャラリーと作り手のプロフィールも一つの公開ページにまとめ、QRコードを発行します。</p>
+            </div>
+          </details>
+          <details>
+            <summary><h3>イベントモードは必須ですか？</h3></summary>
+            <div class="lp-faq-a">
+              <p>必須ではありません。基本は通常モードです。イベントモードは、お客様ごとの手渡し場面も加えたい対面販売向けの付属機能です。</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section" id="final-cta" aria-labelledby="final-cta-title">
+      <div class="lp-shell">
+        <div class="lp-final-card">
+          <p class="lp-eyebrow">軌跡を体験する</p>
+          <h2 class="lp-h2" id="final-cta-title">あなたの商品にも、届くまでの物語を。</h2>
+          <div class="lp-actions">
+            <button class="lp-button lp-button-primary" type="button" disabled aria-label="受け取る体験を見てみる（現在利用できません）">
+              受け取る体験を見てみる
+            </button>
+            <a class="lp-button lp-button-outline" href="login.html">管理画面へログイン</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="lp-footer">
+      <div class="lp-footer-inner">
+        <a class="brand" href="#lp-main"><span class="brand-mark" aria-hidden="true">軌</span><span>軌跡</span></a>
+        <nav class="lp-footer-nav" aria-label="フッターリンク">
+          <a href="#how-it-works">漫画で見る</a>
+          <a href="#use-cases">活用例</a>
+          <a href="#event-mode">イベントモード</a>
+          <a href="#faq">FAQ</a>
+          <a href="login.html">ログイン</a>
+        </nav>
+        <p class="lp-footer-note">軌跡は、現場でのPoCを通して体験と運用を検証しているプロトタイプです。</p>
+        <p class="lp-footer-copy">© 軌跡 prototype</p>
+      </div>
+    </footer>
   </main>
-  <footer class="site-footer">© 軌跡 prototype</footer>
+
+  <script src="js/landing.js" defer></script>
+
 </body>
 </html>

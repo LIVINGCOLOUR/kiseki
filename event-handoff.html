@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>手渡し撮影 | 軌跡</title><link rel="stylesheet" href="css/styles.css" /></head>
+<body data-require-auth data-event-handoff>
+  <header class="site-header"><div class="app-shell header-inner"><a class="brand" href="event-admin.html"><span class="brand-mark">軌</span><span>軌跡<small>イベント登録</small></span></a><nav class="main-nav"><a href="event-admin.html">イベント登録</a><button type="button" data-logout>ログアウト</button></nav></div></header>
+  <main class="app-shell">
+    <section class="section form-card"><p class="eyebrow">イベント登録</p><h1 data-handoff-event-name>手渡しを撮影する</h1><p class="lead">カード番号を確認してから録画を始めてください。顔や声は入れず、手元だけを撮影します。</p></section>
+    <section class="section form-card" data-handoff-panel>
+      <div class="field"><label for="handoffCard">QRカード</label><select id="handoffCard" data-handoff-card></select></div>
+      <video class="event-camera-preview" data-camera-preview autoplay muted playsinline></video>
+      <div class="actions"><button class="button" type="button" data-camera-start>カメラを準備</button><button class="button primary-button" type="button" data-record-start disabled>録画開始</button><button class="button danger-button" type="button" data-record-stop disabled>停止して結合</button></div>
+      <p class="status" data-handoff-status role="status"></p>
+      <div class="event-handoff-preview" data-handoff-preview hidden><h2>今回の手渡し動画</h2><video controls playsinline data-handoff-video></video></div>
+      <div class="event-job-list" data-event-job-list></div>
+    </section>
+  </main>
+  <script src="js/auth.js"></script><script src="js/event-composer.js"></script><script src="js/event.js"></script>
+</body>
+</html>

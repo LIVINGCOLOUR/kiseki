@@ -52,6 +52,9 @@ GitHubのREADME、docs、説明欄、Issue、Pull Requestには、本番管理�
 - `records.html?id=id-01`: 日ごとの記録一覧
 - `profile.html`: プロフィール編集
 - `analytics.html`: アクセス解析
+- `event-admin.html`: イベント共通動画と顧客別QRカードの準備
+- `event-handoff.html?event={eventId}`: 手渡し動画の録画・自動結合
+- `event.html?token={token}`: 顧客専用のイベント動画ページ
 
 ## QR先の構造
 
@@ -75,6 +78,12 @@ QR先ページでは `ffmpeg.wasm` や `js/video-composer.js` を読み込みま
 - 保存するのは完成MP4、写真、サムネイル相当の写真URLです
 
 写真ギャラリーは `photo_urls_json` を使います。`video_thumbnail_url` はサムネイル/ポスター用として残します。
+
+## イベント登録
+
+イベントでは、共通の調理動画を一度登録し、顧客ごとに異なるQRカードを事前発行できます。会場ではカード番号を選び、手元だけを録画して停止すると、共通動画と手渡し動画をブラウザ内で結合して専用QRへ公開します。結合中はQR先を「準備中」とし、手渡し動画が保存済みなら連続再生へ切り替えます。
+
+顧客動画は顔・音声を含めないこと、撮影前に同意を取ること、イベントの公開期限を設定することを前提とします。
 
 ## ローカル開発
 
